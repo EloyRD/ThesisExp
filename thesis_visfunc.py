@@ -35,10 +35,10 @@ def EA_plt_land(f, domain, steps, a=15, b=-80):
     fig = plt.figure(figsize=(7, 3))
     # plotting the surface
     ax = fig.add_subplot(1, 2, 1, projection='3d')
+    ax.scatter( -1, -1, 0, color='r', s=15)
     ax.view_init(a,b)
     surf = ax.plot_surface(X, Y, Z, rcount=rcount, ccount=ccount, facecolors=colors, shade=False)
     surf.set_facecolor((0,0,0,0))
-    ax.scatter( -1, -1, 0, color='r', s=15)
     ax.set_aspect('auto')
     ax.autoscale_view()
     ax.set_xlabel('x')
@@ -48,8 +48,8 @@ def EA_plt_land(f, domain, steps, a=15, b=-80):
     #plotting level curves
     levels = 15
     ay = fig.add_subplot(1,2,2)
-    CS = ay.contour(X, Y, Z, levels, cmap=cm.viridis_r)
     ay.scatter(-1, -1, color='r', s=15)
+    CS = ay.contour(X, Y, Z, levels, cmap=cm.viridis_r)
     ay.clabel(CS, inline=True, fontsize=8)
     ay.set_aspect('auto')
     ay.set_xlabel('x')
@@ -81,8 +81,8 @@ def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     # plotting the surface
     ax = fig.add_subplot(1, 2, 1, projection='3d')
     ax.view_init(a,b)
-    surf = ax.plot_surface(X, Y, Z, cmap=cm.viridis_r, alpha=0.25)
     ax.scatter(xp, yp, zp, color='r', s=15)
+    surf = ax.plot_surface(X, Y, Z, cmap='cividis_r', alpha=0.25)
     ax.set_aspect('auto')
     ax.autoscale_view()
     ax.set_xlabel('x')
@@ -92,8 +92,8 @@ def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     #plotting level curves
     levels = 15
     ay = fig.add_subplot(1,2,2)
-    ay.contour(X, Y, Z, levels, cmap=cm.viridis_r, linewidths=0.1)
     ay.scatter(xp, yp, color='r',  s=15)
+    ay.contour(X, Y, Z, levels, cmap='cividis_r', linewidths=0.25)
     ay.set_aspect('auto')
     ay.set_xlabel('x')
     ay.set_ylabel('y')
@@ -130,9 +130,9 @@ def EA_plt_gen(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     # plotting the surface
     ax = fig.add_subplot(1, 2, 1, projection='3d')
     ax.view_init(a,b)
-    surf = ax.plot_surface(X, Y, Z, cmap=cm.viridis_r, alpha=0.25)
     ax.scatter(xp, yp, zp, color='r', s=15)
     ax.scatter(xg, yg, zg, color='g', s=15)
+    ax.plot_surface(X, Y, Z, cmap='cividis_r', alpha=0.25)
     ax.set_aspect('auto')
     ax.autoscale_view()
     ax.set_xlabel('x')
@@ -142,9 +142,9 @@ def EA_plt_gen(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     #plotting level curves
     levels = 15
     ay = fig.add_subplot(1,2,2)
-    ay.contour(X, Y, Z, levels, cmap=cm.viridis_r, linewidths=0.1)
     ay.scatter(xp, yp, color='r',  s=15)
     ay.scatter(xg, yg, color='g', s=15)
+    ay.contour(X, Y, Z, levels, cmap='cividis_r', linewidths=0.25)
     ay.set_aspect('auto')
     ay.set_xlabel('x')
     ay.set_ylabel('y')
