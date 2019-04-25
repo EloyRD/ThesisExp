@@ -201,11 +201,11 @@ def EA_exp(exp_n, gen_f, f, domain, pop_s, par_s, prog_s, mut_p, mut_s, par_sele
 
         fitness = EA_fitn_summary(generations)
         fitness = fitness.reset_index()
-        fitness = fitness.insert(0, 'run', run_n)
+        fitness.insert(0, 'run', run_n)
         fitness_res = fitness_res.append(fitness, ignore_index=True)
 
         generations = generations.reset_index()
-        generations = generations.insert(0, 'run', run_n)
+        generations.insert(0, 'run', run_n)
         genera_res = genera_res.append(generations, ignore_index=True)
 
     return genera_res, fitness_res
