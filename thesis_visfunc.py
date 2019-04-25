@@ -29,7 +29,7 @@ def EA_plt_land(f, domain, steps, a=15, b=-80):
     Z = f(X,Y)
 
     norm = plt.Normalize(Z.min(), Z.max())
-    colors = cm.viridis_r(norm(Z))
+    colors = cm.plasma_r(norm(Z))
     rcount, ccount, _ = colors.shape
 
     fig = plt.figure(figsize=(7, 3))
@@ -49,7 +49,7 @@ def EA_plt_land(f, domain, steps, a=15, b=-80):
     levels = 15
     ay = fig.add_subplot(1,2,2)
     ay.scatter(-1, -1, color='r', s=15)
-    CS = ay.contour(X, Y, Z, levels, cmap=cm.viridis_r)
+    CS = ay.contour(X, Y, Z, levels, cmap=cm.plasma_r)
     ay.clabel(CS, inline=True, fontsize=8)
     ay.set_aspect('auto')
     ay.set_xlabel('x')
@@ -82,7 +82,7 @@ def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     ax = fig.add_subplot(1, 2, 1, projection='3d')
     ax.view_init(a,b)
     ax.scatter(xp, yp, zp, color='r', s=15)
-    surf = ax.plot_surface(X, Y, Z, cmap='viridis_r', alpha=0.25)
+    surf = ax.plot_surface(X, Y, Z, cmap='plasma_r', alpha=0.25)
     ax.set_aspect('auto')
     ax.autoscale_view()
     ax.set_xlabel('x')
@@ -93,7 +93,7 @@ def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     levels = 15
     ay = fig.add_subplot(1,2,2)
     ay.scatter(xp, yp, color='r',  s=15)
-    ay.contour(X, Y, Z, levels, cmap='viridis_r', linewidths=0.25)
+    ay.contour(X, Y, Z, levels, cmap='plasma_r', linewidths=1)
     ay.set_aspect('auto')
     ay.set_xlabel('x')
     ay.set_ylabel('y')
@@ -132,7 +132,7 @@ def EA_plt_gen(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     ax.view_init(a,b)
     ax.scatter(xp, yp, zp, color='r', s=15)
     ax.scatter(xg, yg, zg, color='g', s=15)
-    ax.plot_surface(X, Y, Z, cmap='viridis_r', alpha=0.25)
+    ax.plot_surface(X, Y, Z, cmap='plasma_r', alpha=0.25)
     ax.set_aspect('auto')
     ax.autoscale_view()
     ax.set_xlabel('x')
@@ -144,7 +144,7 @@ def EA_plt_gen(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     ay = fig.add_subplot(1,2,2)
     ay.scatter(xp, yp, color='r',  s=15)
     ay.scatter(xg, yg, color='g', s=15)
-    ay.contour(X, Y, Z, levels, cmap='viridis_r', linewidths=0.25)
+    ay.contour(X, Y, Z, levels, cmap='plasma_r', linewidths=1)
     ay.set_aspect('auto')
     ay.set_xlabel('x')
     ay.set_ylabel('y')
