@@ -2,6 +2,20 @@ import numpy as np
 import pandas as pd
 
 
+def shifter(df, col_to_shift, pos_to_move):
+    arr = df.columns.values
+    idx = df.columns.get_loc(col_to_shift)
+    if idx == pos_to_move:
+        pass
+    elif idx > pos_to_move:
+        arr[pos_to_move+1: idx+1] = arr[pos_to_move: idx]
+    else:
+        arr[idx: pos_to_move] = arr[idx+1: pos_to_move+1]
+    arr[pos_to_move] = col_to_shift
+    df.columns = arr
+    return df
+
+
 def EA_start(pop_s, domain, f, birthcounter):
     gen_n = 0
 
@@ -168,8 +182,10 @@ def EA_fitn_summary(generations):
 
 def EA_exp(exp_n, gen_f, f, domain, pop_s, par_s, prog_s, mut_p, mut_s, par_selection='Ranking', crossover='None', mutation='random_co_dis', population_new='Ranking'):
     fitn_res_cols=['run', 'generation', 'fitness_min', 'fitness_max', 'fitness_mean']
+    gene_res_cols=['run', 'birthdate', 'generation', 'function', 'fitness', 'gen_x', 'gen_y']
 
     fitness_res = pd.DataFrame(columns=fitn_res_cols)
+    genera_res = pd.DataFrame(columns=gene_res_cols)
 
     for j in range(exp_n):
         run_n = j
@@ -185,8 +201,12 @@ def EA_exp(exp_n, gen_f, f, domain, pop_s, par_s, prog_s, mut_p, mut_s, par_sele
 
         fitness = EA_fitn_summary(generations)
         fitness = fitness.reset_index()
-        fitness.insert(0, 'run', run_n)
+        fitness = fitness.insert(0, 'run', run_n)
         fitness_res = fitness_res.append(fitness, ignore_index=True)
 
-    return fitness_res
+        generations = generations.reset_index()
+        generations = generations.insert(0, 'run', run_n)
+        genera_res = genera_res.append(generations, ignore_index=True)
+
+    return genera_res, fitness_res
 
