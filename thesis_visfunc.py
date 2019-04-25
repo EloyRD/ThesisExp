@@ -32,13 +32,13 @@ def EA_plt_land(f, domain, steps, a=15, b=-80):
     colors = cm.ocean(norm(Z))
     rcount, ccount, _ = colors.shape
 
-    fig = plt.figure(figsize=(7, 2.5))
+    fig = plt.figure(figsize=(7, 3))
     # plotting the surface
     ax = fig.add_subplot(1, 2, 1, projection='3d')
     ax.view_init(a,b)
     surf = ax.plot_surface(X, Y, Z, rcount=rcount, ccount=ccount, facecolors=colors, shade=False)
     surf.set_facecolor((0,0,0,0))
-    ax.scatter( -1, -1, 0, color='r', s=10)
+    ax.scatter( -1, -1, 0, color='r', s=15)
     ax.set_aspect('auto')
     ax.autoscale_view()
     ax.set_xlabel('x')
@@ -49,9 +49,11 @@ def EA_plt_land(f, domain, steps, a=15, b=-80):
     levels = 15
     ay = fig.add_subplot(1,2,2)
     CS = ay.contour(X, Y, Z, levels, cmap=cm.ocean)
-    ay.scatter(-1, -1, color='r', s=10)
+    ay.scatter(-1, -1, color='r', s=15)
     ay.clabel(CS, inline=True, fontsize=8)
     ay.set_aspect('auto')
+    ay.set_xlabel('x')
+    ay.set_ylabel('y')
 
     #adjusting
     plt.tight_layout()
@@ -75,12 +77,12 @@ def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     # Applying the function
     Z = f(X,Y)
 
-    fig = plt.figure(figsize=(7, 2.5))
+    fig = plt.figure(figsize=(7, 3))
     # plotting the surface
     ax = fig.add_subplot(1, 2, 1, projection='3d')
     ax.view_init(a,b)
-    surf = ax.plot_surface(X, Y, Z, cmap=cm.ocean, alpha=0.3)
-    ax.scatter(xp, yp, zp, s=10)
+    surf = ax.plot_surface(X, Y, Z, cmap=cm.ocean, alpha=0.25)
+    ax.scatter(xp, yp, zp, color='g', s=15)
     ax.set_aspect('auto')
     ax.autoscale_view()
     ax.set_xlabel('x')
@@ -91,9 +93,11 @@ def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     levels = 15
     ay = fig.add_subplot(1,2,2)
     ay.contour(X, Y, Z, levels, cmap=cm.ocean)
-    ay.scatter(xp, yp, s=10)
+    ay.scatter(xp, yp, color='g',  s=15)
     ay.set_aspect('auto')
-  
+    ay.set_xlabel('x')
+    ay.set_ylabel('y')
+
     #adjusting
     plt.tight_layout()
     plt.show()
