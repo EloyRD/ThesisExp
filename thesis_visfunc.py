@@ -61,8 +61,8 @@ def EA_plt_land(f, domain, steps, a=15, b=-80):
 def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     query = (genera_res['function']=='population') & (genera_res['generation']==gen_s) & (genera_res['run']==run_s)
     population_s = genera_res[query]
-    xp = population_s['genx'].values
-    yp = population_s['geny'].values
+    xp = population_s['gen_x'].values
+    yp = population_s['gen_y'].values
     zp = population_s['fitness'].values
 
     (x_min, x_max, y_min, y_max) = domain
