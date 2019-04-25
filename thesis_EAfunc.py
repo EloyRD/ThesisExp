@@ -47,7 +47,7 @@ def EA_start(pop_s, domain, f, birthcounter):
     return population, generations, birthcounter, gen_n
 
 
-def EA_prog(population, par_s, prog_s, birthcounter, gen_n, mut_p, mut_s, domain, par_selection='Ranking', crossover='None', mutation='random_co_dis'):
+def EA_prog(population, par_s, prog_s, birthcounter, gen_n, mut_p, mut_s, domain, f, par_selection='Ranking', crossover='None', mutation='random_co_dis'):
     parents = EA_par_selection(population, par_s, par_selection)
     progeny = EA_prog_CrosUMut(parents, prog_s, birthcounter, mut_p, mut_s, domain, crossover, mutation)
 
