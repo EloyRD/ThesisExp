@@ -24,7 +24,7 @@ def plt_land(f, domain, steps, a=15, b=-80):
     x=np.linspace(x_min,x_max,steps)
     y=np.linspace(y_min,y_max,steps)
     X,Y=np.meshgrid(x,y)  # combine all x with all y
-    
+
     # Applying the function
     Z = f(X,Y)
 
@@ -32,15 +32,57 @@ def plt_land(f, domain, steps, a=15, b=-80):
     colors = cm.ocean(norm(Z))
     rcount, ccount, _ = colors.shape
 
-    fig = plt.figure(figsize=(9, 3))
+    fig = plt.figure(figsize=(7, 2.5))
     # plotting the surface
     ax = fig.add_subplot(1, 2, 1, projection='3d')
     ax.view_init(a,b)
     surf = ax.plot_surface(X, Y, Z, rcount=rcount, ccount=ccount, facecolors=colors, shade=False)
     surf.set_facecolor((0,0,0,0))
+    ax.scatter( -1, -1, 0, color='r', s=10)
     ax.set_aspect('auto')
     ax.autoscale_view()
-    ax.scatter( -1, -1, 0, color='r',s=10)
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.set_zlabel('z')
+
+    #plotting level curves
+    levels = 15
+    ay = fig.add_subplot(1,2,2)
+    CS = ay.contour(X, Y, Z, levels, cmap=cm.ocean)
+    ay.scatter(-1, -1, color='r', s=10)
+    ay.clabel(CS, inline=True, fontsize=8)
+    ay.set_aspect('auto')
+
+    #adjusting
+    plt.tight_layout()
+    plt.show()
+
+
+def plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
+    query = (genera_res['function']=='population') & (genera_res['generation']==gen_s) & (genera_res['run']==run_s)
+    population_s = genera_res[query]
+    xp = population_s['genx'].values
+    yp = population_s['geny'].values
+    zp = population_s['fitness'].values
+
+    (x_min, x_max, y_min, y_max) = domain
+
+    # Create a 3D array
+    # meshgrid produces all combinations of given x and y
+    x=np.linspace(x_min,x_max,steps)
+    y=np.linspace(y_min,y_max,steps)
+    X,Y=np.meshgrid(x,y)  # combine all x with all y
+    # Applying the function
+    Z = f(X,Y)
+
+    fig = plt.figure(figsize=(7, 2.5))
+    # plotting the surface
+    ax = fig.add_subplot(1, 2, 1, projection='3d')
+    ax.view_init(a,b)
+    surf = ax.plot_surface(X, Y, Z, cmap=cm.ocean, alpha=0.3)
+    ax.scatter(xp, yp, zp, s=10)
+    ax.set_aspect('auto')
+    ax.autoscale_view()
     ax.set_xlabel('x')
     ax.set_ylabel('y')
     ax.set_zlabel('z')
@@ -48,9 +90,8 @@ def plt_land(f, domain, steps, a=15, b=-80):
     #plotting level curves
     levels = 15
     ay = fig.add_subplot(1,2,2)
-    CS = ay.contour(X, Y, Z, levels, cmap=cm.ocean)
-    ay.scatter(-1, -1, color='r')
-    ay.clabel(CS, inline=True, fontsize=8)
+    ay.contour(X, Y, Z, levels, cmap=cm.ocean)
+    ay.scatter(xp, yp, s=10)
     ay.set_aspect('auto')
   
     #adjusting
