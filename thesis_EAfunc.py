@@ -160,7 +160,7 @@ def EA_pop_to_df(generations, population):
 
 
 def EA_fitn_summary(generations):
-    fitness = generations[generations['function']=='parent'].groupby('generation').agg({'fitness': ['min', 'max', 'mean']})
+    fitness = generations[generations['function']=='population'].groupby('generation').agg({'fitness': ['min', 'max', 'mean', 'std']})
     fitness.columns = ["_".join(x) for x in fitness.columns.ravel()]
 
     return fitness
