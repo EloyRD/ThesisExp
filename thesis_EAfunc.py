@@ -166,7 +166,7 @@ def EA_fitn_summary(generations):
     return fitness
 
 
-def EA_exp(exp_n, f, domain, pop_s, par_s, prog_s, mut_p, mut_s, par_selection='Ranking', crossover='None', mutation='random_co_dis', population_new='Ranking' ):
+def EA_exp(exp_n, gen_f, f, domain, pop_s, par_s, prog_s, mut_p, mut_s, par_selection='Ranking', crossover='None', mutation='random_co_dis', population_new='Ranking'):
     fitn_res_cols=['run', 'generation', 'fitness_min', 'fitness_max', 'fitness_mean']
 
     fitness_res = pd.DataFrame(columns=fitn_res_cols)
@@ -177,7 +177,7 @@ def EA_exp(exp_n, f, domain, pop_s, par_s, prog_s, mut_p, mut_s, par_selection='
 
         population, generations, birthcounter, gen_n = EA_start(pop_s, domain, f, birthcounter)
 
-        for i in range(40):
+        for i in range(gen_f):
             birthcounter, progeny = EA_prog(population, par_s, prog_s, birthcounter, gen_n, mut_p, mut_s, domain, f, par_selection, crossover, mutation)
             generations = EA_prog_to_df(generations, progeny)
             gen_n, population, progeny = EA_new_population(population, progeny, gen_n, pop_s, f, population_new)
