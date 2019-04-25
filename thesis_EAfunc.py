@@ -181,7 +181,7 @@ def EA_fitn_summary(generations):
 
 
 def EA_exp(exp_n, gen_f, f, domain, pop_s, par_s, prog_s, mut_p, mut_s, par_selection='Ranking', crossover='None', mutation='random_co_dis', population_new='Ranking'):
-    fitn_res_cols=['run', 'generation', 'fitness_min', 'fitness_max', 'fitness_mean']
+    fitn_res_cols=['run', 'generation', 'fitness_min', 'fitness_max', 'fitness_mean', 'fitness_std']
     gene_res_cols=['run', 'birthdate', 'generation', 'function', 'fitness', 'gen_x', 'gen_y']
 
     fitness_res = pd.DataFrame(columns=fitn_res_cols)
@@ -207,6 +207,11 @@ def EA_exp(exp_n, gen_f, f, domain, pop_s, par_s, prog_s, mut_p, mut_s, par_sele
         generations = generations.reset_index()
         generations.insert(0, 'run', run_n)
         genera_res = genera_res.append(generations, ignore_index=True)
+
+    fitness_res = fitness_res[fitn_res_cols]
+    fitness_res = fitness_res.sort_values(by=['run', 'generation'])
+    genera_res = genera_res[['run', 'generation', 'birthdate', 'function', 'fitness', 'gen_x', 'gen_y']]
+    genera_res = genera_res.sort_values(by=['run', 'generation'])
 
     return genera_res, fitness_res
 
