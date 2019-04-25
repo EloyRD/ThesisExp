@@ -120,12 +120,12 @@ def EA_prog_to_df(generations, progeny):
     return generations
 
 
-def EA_new_population(population, progeny, gen_n, pop_s, f, method='Ranking'):
+def EA_new_population(population, progeny, gen_n, pop_s, f, population_new='Ranking'):
     gen_n += 1
 
     population = np.append(population, progeny, axis=0)
 
-    if method=='Ranking':
+    if population_new=='Ranking':
         population = population[population[:,3].argsort()]
         population = np.delete(population, list(range(pop_s,len(population))), axis=0)
 
@@ -164,4 +164,29 @@ def EA_fitn_summary(generations):
     fitness.columns = ["_".join(x) for x in fitness.columns.ravel()]
 
     return fitness
+
+
+def EA_exp(exp_n, f, domain, pop_s, par_s, prog_s, mut_p, mut_s, par_selection='Ranking', crossover='None', mutation='random_co_dis', population_new='Ranking' ):
+    fitn_res_cols=['run', 'generation', 'fitness_min', 'fitness_max', 'fitness_mean']
+
+    fitness_res = pd.DataFrame(columns=fitn_res_cols)
+
+    for j in range(exp_n):
+        run_n = j
+        birthcounter = 0
+
+        population, generations, birthcounter, gen_n = EA_start(pop_s, domain, f, birthcounter)
+
+        for i in range(40):
+            birthcounter, progeny = EA_prog(population, par_s, prog_s, birthcounter, gen_n, mut_p, mut_s, domain, f, par_selection, crossover, mutation)
+            generations = EA_prog_to_df(generations, progeny)
+            gen_n, population, progeny = EA_new_population(population, progeny, gen_n, pop_s, f, population_new)
+            generations = EA_pop_to_df(generations, population)
+
+        fitness = EA_fitn_summary(generations)
+        fitness = fitness.reset_index()
+        fitness.insert(0, 'run', run_n)
+        fitness_res = fitness_res.append(fitness, ignore_index=True)
+
+    return fitness_res
 
