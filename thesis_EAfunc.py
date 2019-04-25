@@ -120,7 +120,7 @@ def EA_prog_to_df(generations, progeny):
     return generations
 
 
-def EA_new_population(population, progeny, gen_n, pop_s, method='Ranking'):
+def EA_new_population(population, progeny, gen_n, pop_s, f, method='Ranking'):
     gen_n += 1
 
     population = np.append(population, progeny, axis=0)
