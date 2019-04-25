@@ -16,7 +16,7 @@ def EA_fitn_dev(fitness_res, run_s):
     fitness_s.plot(y='fitness_std')
 
 
-def plt_land(f, domain, steps, a=15, b=-80):
+def EA_plt_land(f, domain, steps, a=15, b=-80):
     (x_min, x_max, y_min, y_max) = domain
     
     # Create a 3D array
@@ -58,7 +58,7 @@ def plt_land(f, domain, steps, a=15, b=-80):
     plt.show()
 
 
-def plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
+def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     query = (genera_res['function']=='population') & (genera_res['generation']==gen_s) & (genera_res['run']==run_s)
     population_s = genera_res[query]
     xp = population_s['genx'].values
