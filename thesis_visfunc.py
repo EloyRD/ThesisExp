@@ -32,7 +32,7 @@ def EA_plt_land(f, domain, steps, a=15, b=-80):
     colors = cm.viridis(norm(Z))
     rcount, ccount, _ = colors.shape
 
-    fig = plt.figure(figsize=(7, 3))
+    fig = plt.figure(figsize=(9.1, 3.9))
     # plotting the surface
     ax = fig.add_subplot(1, 2, 1, projection='3d')
     ax.scatter( -1, -1, 0, color='r', s=15)
@@ -41,9 +41,9 @@ def EA_plt_land(f, domain, steps, a=15, b=-80):
     surf.set_facecolor((0,0,0,0))
     ax.set_aspect('auto')
     ax.autoscale_view()
-    ax.set_xlabel('x')
-    ax.set_ylabel('y')
-    ax.set_zlabel('z')
+    ax.set_xlabel('gen_x')
+    ax.set_ylabel('gen_y')
+    ax.set_zlabel('fitness')
 
     #plotting level curves
     levels = 15
@@ -52,8 +52,8 @@ def EA_plt_land(f, domain, steps, a=15, b=-80):
     CS = ay.contour(X, Y, Z, levels, cmap='viridis', linewidths=1)
     ay.clabel(CS, inline=True, fontsize=8)
     ay.set_aspect('auto')
-    ay.set_xlabel('x')
-    ay.set_ylabel('y')
+    ay.set_xlabel('gen_x')
+    ay.set_ylabel('gen_y')
 
     #adjusting
     plt.tight_layout()
@@ -77,7 +77,7 @@ def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     # Applying the function
     Z = f(X,Y)
 
-    fig = plt.figure(figsize=(7, 3))
+    fig = plt.figure(figsize=(9.1, 3.9))
     # plotting the surface
     ax = fig.add_subplot(1, 2, 1, projection='3d')
     ax.view_init(a,b)
@@ -85,9 +85,9 @@ def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     surf = ax.plot_surface(X, Y, Z, cmap='viridis', alpha=0.25)
     ax.set_aspect('auto')
     ax.autoscale_view()
-    ax.set_xlabel('x')
-    ax.set_ylabel('y')
-    ax.set_zlabel('z')
+    ax.set_xlabel('gen_x')
+    ax.set_ylabel('gen_y')
+    ax.set_zlabel('fitness')
 
     #plotting level curves
     levels = 15
@@ -95,8 +95,8 @@ def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     ay.scatter(xp, yp, color='r',  s=15)
     ay.contour(X, Y, Z, levels, cmap='viridis', linewidths=1)
     ay.set_aspect('auto')
-    ay.set_xlabel('x')
-    ay.set_ylabel('y')
+    ay.set_xlabel('gen_x')
+    ay.set_ylabel('gen_y')
 
     #adjusting
     plt.tight_layout()
@@ -126,7 +126,7 @@ def EA_plt_gen(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     # Applying the function
     Z = f(X,Y)
 
-    fig = plt.figure(figsize=(7, 3))
+    fig = plt.figure(figsize=(9.1, 3.9))
     # plotting the surface
     ax = fig.add_subplot(1, 2, 1, projection='3d')
     ax.view_init(a,b)
@@ -135,9 +135,9 @@ def EA_plt_gen(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     ax.plot_surface(X, Y, Z, cmap='viridis', alpha=0.3)
     ax.set_aspect('auto')
     ax.autoscale_view()
-    ax.set_xlabel('x')
-    ax.set_ylabel('y')
-    ax.set_zlabel('z')
+    ax.set_xlabel('gen_x')
+    ax.set_ylabel('gen_y')
+    ax.set_zlabel('fitness')
 
     #plotting level curves
     levels = 15
@@ -146,8 +146,8 @@ def EA_plt_gen(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     ay.scatter(xg, yg, color='g', s=15)
     ay.contour(X, Y, Z, levels, cmap='viridis', linewidths=.75)
     ay.set_aspect('auto')
-    ay.set_xlabel('x')
-    ay.set_ylabel('y')
+    ay.set_xlabel('gen_x')
+    ay.set_ylabel('gen_y')
 
     #adjusting
     plt.tight_layout()
