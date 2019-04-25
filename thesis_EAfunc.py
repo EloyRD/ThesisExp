@@ -39,7 +39,6 @@ def EA_start(pop_s, domain, f, birthcounter):
     query = generations['function']==111
     generations.loc[query, 'function'] = 'population'
 
-    generations = generations.infer_objects()
     generations = generations.astype({'birthdate': int, 'generation': int})
 
     # We set the parents population as the
@@ -116,7 +115,6 @@ def EA_prog_to_df(generations, progeny):
     query = generations['function']==222
     generations.loc[query, "function"] = "progeny"
 
-    generations = generations.infer_objects()
     generations = generations.astype({'birthdate': int, 'generation': int})
 
     return generations
@@ -156,7 +154,6 @@ def EA_pop_to_df(generations, population):
     query = generations['function']==111
     generations.loc[query, "function"] = 'population'
 
-    generations = generations.infer_objects()
     generations = generations.astype({'birthdate': int, 'generation': int})
 
     return generations
