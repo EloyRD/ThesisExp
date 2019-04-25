@@ -29,7 +29,7 @@ def EA_plt_land(f, domain, steps, a=15, b=-80):
     Z = f(X,Y)
 
     norm = plt.Normalize(Z.min(), Z.max())
-    colors = cm.cividis(norm(Z))
+    colors = cm.inferno(norm(Z))
     rcount, ccount, _ = colors.shape
 
     fig = plt.figure(figsize=(7, 3))
@@ -48,7 +48,7 @@ def EA_plt_land(f, domain, steps, a=15, b=-80):
     #plotting level curves
     levels = 15
     ay = fig.add_subplot(1,2,2)
-    CS = ay.contour(X, Y, Z, levels, cmap=cm.cividis)
+    CS = ay.contour(X, Y, Z, levels, cmap=cm.inferno)
     ay.scatter(-1, -1, color='r', s=15)
     ay.clabel(CS, inline=True, fontsize=8)
     ay.set_aspect('auto')
@@ -81,7 +81,7 @@ def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     # plotting the surface
     ax = fig.add_subplot(1, 2, 1, projection='3d')
     ax.view_init(a,b)
-    surf = ax.plot_surface(X, Y, Z, cmap=cm.cividis, alpha=0.25)
+    surf = ax.plot_surface(X, Y, Z, cmap=cm.inferno, alpha=0.25)
     ax.scatter(xp, yp, zp, color='r', s=15)
     ax.set_aspect('auto')
     ax.autoscale_view()
@@ -92,7 +92,7 @@ def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     #plotting level curves
     levels = 15
     ay = fig.add_subplot(1,2,2)
-    ay.contour(X, Y, Z, levels, cmap=cm.cividis, linewidths=0.1)
+    ay.contour(X, Y, Z, levels, cmap=cm.inferno, linewidths=0.1)
     ay.scatter(xp, yp, color='r',  s=15)
     ay.set_aspect('auto')
     ay.set_xlabel('x')
@@ -130,7 +130,7 @@ def EA_plt_gen(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     # plotting the surface
     ax = fig.add_subplot(1, 2, 1, projection='3d')
     ax.view_init(a,b)
-    surf = ax.plot_surface(X, Y, Z, cmap=cm.cividis, alpha=0.25)
+    surf = ax.plot_surface(X, Y, Z, cmap=cm.inferno, alpha=0.25)
     ax.scatter(xp, yp, zp, color='r', s=15)
     ax.scatter(xg, yg, zg, color='g', s=15)
     ax.set_aspect('auto')
@@ -142,7 +142,7 @@ def EA_plt_gen(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     #plotting level curves
     levels = 15
     ay = fig.add_subplot(1,2,2)
-    ay.contour(X, Y, Z, levels, cmap=cm.cividis, linewidths=0.1)
+    ay.contour(X, Y, Z, levels, cmap=cm.inferno, linewidths=0.1)
     ay.scatter(xp, yp, color='r',  s=15)
     ay.scatter(xg, yg, color='g', s=15)
     ay.set_aspect('auto')
