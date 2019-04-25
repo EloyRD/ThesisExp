@@ -49,7 +49,7 @@ def EA_plt_land(f, domain, steps, a=15, b=-80):
     levels = 15
     ay = fig.add_subplot(1,2,2)
     ay.scatter(-1, -1, color='r', s=15)
-    CS = ay.contour(X, Y, Z, levels, cmap=cm.plasma_r)
+    CS = ay.contour(X, Y, Z, levels, cmap='viridis', linewidths=1)
     ay.clabel(CS, inline=True, fontsize=8)
     ay.set_aspect('auto')
     ay.set_xlabel('x')
