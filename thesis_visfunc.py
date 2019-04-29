@@ -16,8 +16,9 @@ def EA_fitn_dev(fitness_res, run_s):
     fitness_s.plot(y='fitness_std')
 
 
-def EA_plt_land(f, domain, steps, a=15, b=-80):
+def EA_plt_land(f, domain, point, steps, a=15, b=-80, imgsize=(15,10)):
     (x_min, x_max, y_min, y_max) = domain
+    (x_plot, y_plot) = point
 
     # Create a 3D array
     # meshgrid produces all combinations of given x and y
@@ -32,10 +33,10 @@ def EA_plt_land(f, domain, steps, a=15, b=-80):
     colors = cm.viridis(norm(Z))
     rcount, ccount, _ = colors.shape
 
-    fig = plt.figure(figsize=(9.1, 3.9))
+    fig = plt.figure(figsize=imgsize)
     # plotting the surface
     ax = fig.add_subplot(1, 2, 1, projection='3d')
-    ax.scatter( -1, -1, 0, color='r', s=15)
+    ax.scatter( x_plot, y_plot, f(x_plot, y_plot), color='r', s=15)
     ax.view_init(a,b)
     surf = ax.plot_surface(X, Y, Z, rcount=rcount, ccount=ccount, facecolors=colors, shade=False)
     surf.set_facecolor((0,0,0,0))
@@ -48,7 +49,7 @@ def EA_plt_land(f, domain, steps, a=15, b=-80):
     #plotting level curves
     levels = 15
     ay = fig.add_subplot(1,2,2)
-    ay.scatter(-1, -1, color='r', s=15)
+    ay.scatter(x_plot, y_plot, color='r', s=15)
     CS = ay.contour(X, Y, Z, levels, cmap='viridis', linewidths=1)
     ay.clabel(CS, inline=True, fontsize=8)
     ay.set_aspect('auto')
@@ -60,7 +61,7 @@ def EA_plt_land(f, domain, steps, a=15, b=-80):
     plt.show()
 
 
-def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
+def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80, imgsize=(15,10)):
     query = (genera_res['function']=='population') & (genera_res['generation']==gen_s) & (genera_res['run']==run_s)
     population_s = genera_res[query]
     xp = population_s['gen_x'].values
@@ -77,7 +78,7 @@ def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     # Applying the function
     Z = f(X,Y)
 
-    fig = plt.figure(figsize=(9.1, 3.9))
+    fig = plt.figure(figsize=imgsize)
     # plotting the surface
     ax = fig.add_subplot(1, 2, 1, projection='3d')
     ax.view_init(a,b)
@@ -103,7 +104,7 @@ def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     plt.show()
 
 
-def EA_plt_gen(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
+def EA_plt_gen(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80, imgsize=(15,10)):
     query = (genera_res['function']=='population') & (genera_res['generation']==gen_s) & (genera_res['run']==run_s)
     population_s = genera_res[query]
     xp = population_s['gen_x'].values
@@ -126,7 +127,7 @@ def EA_plt_gen(f, domain, steps, genera_res, run_s, gen_s, a=15, b=-80):
     # Applying the function
     Z = f(X,Y)
 
-    fig = plt.figure(figsize=(9.1, 3.9))
+    fig = plt.figure(figsize=imgsize)
     # plotting the surface
     ax = fig.add_subplot(1, 2, 1, projection='3d')
     ax.view_init(a,b)
