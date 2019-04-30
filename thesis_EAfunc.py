@@ -44,6 +44,8 @@ def EA_start(pop_s, domain, f, birthcounter):
 
     birthcounter = birthcounter + (len(initial)-1)
 
+    initial = initial[initial[:, 3].argsort()]
+
     # Creating data storage
     cols = ['birthdate', 'generation', 'function', 'fitness', 'gen_x', 'gen_y']
 
@@ -78,6 +80,8 @@ def EA_prog(population, par_s, prog_s, birthcounter, gen_n, mut_p, mut_s, domain
     progeny[:, 0] = np.arange(len(progeny)) + (birthcounter + 1)
 
     birthcounter = progeny[-1, 0]
+
+    progeny = progeny[progeny[:, 3].argsort()]
 
     return birthcounter, progeny
 
