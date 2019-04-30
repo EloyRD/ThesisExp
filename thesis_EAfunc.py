@@ -148,7 +148,7 @@ def EA_new_population(population, progeny, gen_n, pop_s, f, population_new='Rank
         population = np.delete(population, list(range(pop_s,len(population))), axis=0)
 
     # #Fitness in 4th column
-    population[:, 3] = f(population[:, 4],population[:, 4])
+    population[:, 3] = f(population[:, 4],population[:, 5])
 
     # #Function in 3rd column. "111" and "222" are alias for parent and progeny
     population[:, 2] = np.ones(pop_s)*111
