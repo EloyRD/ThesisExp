@@ -234,7 +234,7 @@ def EA_exp(exp_n, gen_f, f, domain, pop_s, par_s, prog_s, mut_p, mut_s, par_sele
     genera_res = genera_res[['run', 'generation', 'birthdate', 'function', 'fitness', 'gen_x', 'gen_y']]
     genera_res = genera_res.sort_values(by=['run', 'generation'])
 
-    fitness_res.infer_objects()
-    genera_res.infer_objects()
+    fitness_res = fitness_res.infer_objects()
+    genera_res = genera_res.infer_objects()
 
     return genera_res, fitness_res
