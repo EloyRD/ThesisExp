@@ -109,7 +109,7 @@ def EA_prog_CrosUMut(parents, prog_s, birthcounter, mut_p, mut_s, domain, crosso
         #Random shuffle of second sets
         np.random.shuffle(gn2)
         # For the progeny , we randomly pick from the shuffled and unshuffled sets
-        sieve = np.random.randint(2, size(len(gn1),2))
+        sieve = np.random.randint(2, size=(len(gn1),2))
         not_sieve = sieve^1
         progeny[:,-2,] = sieve*gn1 + not_sieve*gn2
 
