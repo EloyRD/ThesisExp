@@ -63,7 +63,7 @@ def EA_start(pop_s, domain, f, birthcounter):
     return population, generations, birthcounter, gen_n
 
 
-def EA_prog(population, par_s, prog_s, birthcounter, gen_n, mut_p, mut_s, domain, f, par_selection='Ranking', crossover='None', mutation='random_co_dis'):
+def EA_prog(population, par_s, prog_s, birthcounter, gen_n, mut_p, mut_s, domain, f, par_selection='Ranking', crossover='Simple', mutation='random_co_dis'):
     parents = EA_par_selection(population, par_s, par_selection)
     progeny = EA_prog_CrosUMut(parents, prog_s, birthcounter, mut_p, mut_s, domain, crossover, mutation)
 
@@ -83,6 +83,9 @@ def EA_prog(population, par_s, prog_s, birthcounter, gen_n, mut_p, mut_s, domain
 
     progeny = progeny[progeny[:, 3].argsort()]
 
+    if prog_s < par_s:
+        progeny = np.delete(progeny, list(range(prog_s, len(progeny))), axis=0)
+
     return birthcounter, progeny
 
 
@@ -95,9 +98,21 @@ def EA_par_selection(population, par_s, par_selection='Ranking'):
     return parents
 
 
-def EA_prog_CrosUMut(parents, prog_s, birthcounter, mut_p, mut_s, domain, crossover='None', mutation='random_co_dis'):
+def EA_prog_CrosUMut(parents, prog_s, birthcounter, mut_p, mut_s, domain, crossover='Simple', mutation='random_co_dis'):
     if crossover == 'None':
         progeny = np.copy(parents)
+    elif crossover == 'Simple':
+        progeny = np.copy(parents)
+        # Gene sets
+        gn1 = progeny[:,-2:]
+        gn2 = gn1.copy()
+        #Random shuffle of second sets
+        np.random.shuffle(gn2)
+        # For the progeny , we randomly pick from the shuffled and unshuffled sets
+        sieve = np.random.randint(2, size(len(gn1),2))
+        not_sieve = sieve^1
+        progeny[:,-2,] = sieve*gn1 + not_sieve*gn2
+
     if mutation == 'random_co_dis':
         # We unpack the landscape domain
         (x_min, x_max, y_min, y_max) = domain
@@ -108,7 +123,7 @@ def EA_prog_CrosUMut(parents, prog_s, birthcounter, mut_p, mut_s, domain, crosso
         for (i, j) in a:
             r = (np.random.random() < mut_p)
             if r:
-                progeny[i,j] = progeny[i,j] + (2 * (np.random.random() - 1)) * mut_s
+                progeny[i,j] = progeny[i,j] + (2 *np.random.random() - 1) * mut_s
                 if j == 4:
                     if progeny[i, j] > x_max:
                         progeny[i, j] = x_max
@@ -131,7 +146,7 @@ def EA_prog_to_df(generations, progeny):
     generations = generations.append(prog, ignore_index = True)
 
     query = generations['function']==222
-    generations.loc[query, "function"] = "progeny"
+    generations.loc[query, 'function'] = 'progeny'
 
     generations = generations.astype({'birthdate': int, 'generation': int})
 
@@ -158,6 +173,8 @@ def EA_new_population(population, progeny, gen_n, pop_s, f, population_new='Rank
 
     # #Resetting progeny array
     progeny = np.zeros((1, 6))
+
+    population = population[population[:,3].argsort()]
 
     return gen_n, population, progeny
 
@@ -218,4 +235,3 @@ def EA_exp(exp_n, gen_f, f, domain, pop_s, par_s, prog_s, mut_p, mut_s, par_sele
     genera_res = genera_res.sort_values(by=['run', 'generation'])
 
     return genera_res, fitness_res
-
