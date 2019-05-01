@@ -20,7 +20,7 @@ def EA_fitn_dev(fitness_res, run_s, min_f=0):
     plt.xlim(0,None)
 
 
-def EA_plt_land(f, domain, point, steps, a=30, b=-60, imgsize=(15,10), min_f='None', ratio_w=1.5):
+def EA_plt_land(f, domain, point, steps, a=30, b=-60, imgsize=(15,10), min_f='None', ratio_w=1.5, ln=1):
     (x_min, x_max, y_min, y_max) = domain
     (x_plot, y_plot) = point
 
@@ -62,7 +62,7 @@ def EA_plt_land(f, domain, point, steps, a=30, b=-60, imgsize=(15,10), min_f='No
     ay.scatter(x_plot, y_plot, color='r', s=20)
     ## Plotting contour
     levels = 15
-    CS = ay.contour(X, Y, Z, levels, cmap='viridis', linewidths=1)
+    CS = ay.contour(X, Y, Z, levels, cmap='viridis', linewidths=ln)
     ay.clabel(CS, inline=True, fontsize=8)
     ay.set_xlabel('gen_x')
     ay.set_ylabel('gen_y')
@@ -74,7 +74,7 @@ def EA_plt_land(f, domain, point, steps, a=30, b=-60, imgsize=(15,10), min_f='No
     plt.show()
 
 
-def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=30, b=-60, imgsize=(15,10), min_f='None', ratio_w=1.5):
+def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=30, b=-60, imgsize=(15,10), min_f='None', ratio_w=1.5, ln=1):
     query = (genera_res['function']=='population') & (genera_res['generation']==gen_s) & (genera_res['run']==run_s)
     population_s = genera_res[query]
     xp = population_s['gen_x'].values
@@ -116,7 +116,7 @@ def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=30, b=-60, imgsize=
     ay.scatter(xp, yp, color='r',  s=20)
     ## Plotting contour
     levels = 15
-    ay.contour(X, Y, Z, levels, cmap='viridis', linewidths=.75)
+    ay.contour(X, Y, Z, levels, cmap='viridis', linewidths=ln)
     ay.set_xlabel('gen_x')
     ay.set_ylabel('gen_y')
     #ay.set_aspect('auto')
@@ -127,7 +127,7 @@ def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=30, b=-60, imgsize=
     plt.show()
 
 
-def EA_plt_gen(f, domain, steps, genera_res, run_s, gen_s, a=30, b=-60, imgsize=(15,10), min_f='None', ratio_w=1.5):
+def EA_plt_gen(f, domain, steps, genera_res, run_s, gen_s, a=30, b=-60, imgsize=(15,10), min_f='None', ratio_w=1.5, ln=1):
     query = (genera_res['function']=='population') & (genera_res['generation']==gen_s) & (genera_res['run']==run_s)
     population_s = genera_res[query]
     xp = population_s['gen_x'].values
@@ -177,7 +177,7 @@ def EA_plt_gen(f, domain, steps, genera_res, run_s, gen_s, a=30, b=-60, imgsize=
     ay.scatter(xg, yg, color='g', s=17.5)
     ## Plotting contour
     levels = 15
-    ay.contour(X, Y, Z, levels, cmap='viridis', linewidths=.75)
+    ay.contour(X, Y, Z, levels, cmap='viridis', linewidths=ln)
     ay.set_xlabel('gen_x')
     ay.set_ylabel('gen_y')
     #ay.set_aspect('auto')
