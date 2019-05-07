@@ -59,7 +59,7 @@ def EA_plt_land(f, domain, point, steps, a=30, b=-60, imgsize=(15, 10), min_f='N
 
     # Plotting level curves
     ## Plotting points
-    ay.scatter(x_plot, y_plot, color='r', s=20)
+    ay.scatter(x_plot, y_plot, color='r', s=20, label='Minima')
     ## Plotting contour
     levels = 15
     CS = ay.contour(X, Y, Z, levels, cmap='viridis', linewidths=ln)
@@ -68,6 +68,7 @@ def EA_plt_land(f, domain, point, steps, a=30, b=-60, imgsize=(15, 10), min_f='N
     ay.set_ylabel('gen_y')
     #ay.set_aspect('auto')
     ay.autoscale_view(True,True,True)
+    ay.legend()
 
     #adjusting
     plt.tight_layout()
@@ -113,7 +114,7 @@ def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=30, b=-60, imgsize=
 
     # Plotting level curves
     # # Plotting points
-    ay.scatter(xp, yp, color='r', s=20)
+    ay.scatter(xp, yp, color='r', s=20, label='population')
     # # Plotting contour
     levels = 15
     ay.contour(X, Y, Z, levels, cmap='viridis', linewidths=ln)
@@ -121,6 +122,7 @@ def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=30, b=-60, imgsize=
     ay.set_ylabel('gen_y')
     # ay.set_aspect('auto')
     ay.autoscale_view(True,True,True)
+    ay.legend()
 
     # adjusting
     plt.tight_layout()
@@ -173,8 +175,8 @@ def EA_plt_gen(f, domain, steps, genera_res, run_s, gen_s, a=30, b=-60, imgsize=
 
     # Plotting level curves
     # # Plotting points
-    ay.scatter(xp, yp, color='r',  s=20)
-    ay.scatter(xg, yg, color='g', s=17.5)
+    ay.scatter(xp, yp, color='r',  s=20, label='population')
+    ay.scatter(xg, yg, color='g', s=17.5, label='progeny')
     # # Plotting contour
     levels = 15
     ay.contour(X, Y, Z, levels, cmap='viridis', linewidths=ln)
@@ -182,6 +184,7 @@ def EA_plt_gen(f, domain, steps, genera_res, run_s, gen_s, a=30, b=-60, imgsize=
     ay.set_ylabel('gen_y')
     # ay.set_aspect('auto')
     ay.autoscale_view(True, True, True)
+    ay.legend()
 
     # adjusting
     plt.tight_layout()
