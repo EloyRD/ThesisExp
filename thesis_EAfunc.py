@@ -52,7 +52,7 @@ def EA_start(pop_s, domain, f, birthcounter):
     generations = pd.DataFrame(initial, columns=cols)
 
     # #Renaming in the function column
-    query = generations['function']==111
+    query = generations['function'] == 111
     generations.loc[query, 'function'] = 'population'
 
     generations = generations.infer_objects()
@@ -65,7 +65,8 @@ def EA_start(pop_s, domain, f, birthcounter):
 
 def EA_prog(population, par_s, prog_s, birthcounter, gen_n, mut_p, mut_s, domain, f, par_selection='Ranking', crossover='Simple', mutation='random_co_dis'):
     parents = EA_par_selection(population, par_s, par_selection)
-    progeny = EA_prog_CrosUMut(parents, prog_s, birthcounter, mut_p, mut_s, domain, crossover, mutation)
+    progeny = EA_prog_CrosUMut(
+        parents, prog_s, birthcounter, mut_p, mut_s, domain, crossover, mutation)
 
     # #Fitness in 3rd column
     progeny[:, 3] = f(progeny[:, 4], progeny[:, 5])
@@ -104,14 +105,14 @@ def EA_prog_CrosUMut(parents, prog_s, birthcounter, mut_p, mut_s, domain, crosso
     elif crossover == 'Simple':
         progeny = np.copy(parents)
         # Gene sets
-        gn1 = progeny[:,-2:]
+        gn1 = progeny[:, -2:]
         gn2 = gn1.copy()
-        #Random shuffle of second sets
+        # Random shuffle of second sets
         np.random.shuffle(gn2)
         # For the progeny , we randomly pick from the shuffled and unshuffled sets
-        sieve = np.random.randint(2, size=(len(gn1),2))
-        not_sieve = sieve^1
-        progeny[:,-2:] = sieve*gn1 + not_sieve*gn2
+        sieve = np.random.randint(2, size=(len(gn1), 2))
+        not_sieve = sieve ^ 1
+        progeny[:, -2:] = sieve*gn1 + not_sieve*gn2
 
     if mutation == 'random_co_dis':
         # We unpack the landscape domain
@@ -123,7 +124,8 @@ def EA_prog_CrosUMut(parents, prog_s, birthcounter, mut_p, mut_s, domain, crosso
         for (i, j) in a:
             r = (np.random.random() < mut_p)
             if r:
-                progeny[i,j] = progeny[i,j] + (2 *np.random.random() - 1) * mut_s
+                progeny[i, j] = progeny[i, j] + \
+                    (2 * np.random.random() - 1) * mut_s
                 if j == 4:
                     if progeny[i, j] > x_max:
                         progeny[i, j] = x_max
@@ -143,9 +145,9 @@ def EA_prog_to_df(generations, progeny):
     cols = ['birthdate', 'generation', 'function', 'fitness', 'gen_x', 'gen_y']
     prog = pd.DataFrame(progeny, columns=cols)
 
-    generations = generations.append(prog, ignore_index = True)
+    generations = generations.append(prog, ignore_index=True)
 
-    query = generations['function']==222
+    query = generations['function'] == 222
     generations.loc[query, 'function'] = 'progeny'
 
     generations = generations.infer_objects()
@@ -158,12 +160,13 @@ def EA_new_population(population, progeny, gen_n, pop_s, f, population_new='Rank
 
     population = np.append(population, progeny, axis=0)
 
-    if population_new=='Ranking':
-        population = population[population[:,3].argsort()]
-        population = np.delete(population, list(range(pop_s,len(population))), axis=0)
+    if population_new == 'Ranking':
+        population = population[population[:, 3].argsort()]
+        population = np.delete(population, list(
+            range(pop_s, len(population))), axis=0)
 
     # #Fitness in 4th column
-    population[:, 3] = f(population[:, 4],population[:, 5])
+    population[:, 3] = f(population[:, 4], population[:, 5])
 
     # #Function in 3rd column. "111" and "222" are alias for parent and progeny
     population[:, 2] = np.ones(pop_s)*111
@@ -174,7 +177,7 @@ def EA_new_population(population, progeny, gen_n, pop_s, f, population_new='Rank
     # #Resetting progeny array
     progeny = np.zeros((1, 6))
 
-    population = population[population[:,3].argsort()]
+    population = population[population[:, 3].argsort()]
 
     return gen_n, population, progeny
 
@@ -184,9 +187,9 @@ def EA_pop_to_df(generations, population):
     cols = ['birthdate', 'generation', 'function', 'fitness', 'gen_x', 'gen_y']
     pop = pd.DataFrame(population, columns=cols)
 
-    generations = generations.append(pop, ignore_index = True)
+    generations = generations.append(pop, ignore_index=True)
 
-    query = generations['function']==111
+    query = generations['function'] == 111
     generations.loc[query, "function"] = 'population'
 
     generations = generations.infer_objects()
@@ -195,15 +198,18 @@ def EA_pop_to_df(generations, population):
 
 
 def EA_fitn_summary(generations):
-    fitness = generations[generations['function']=='population'].groupby('generation').agg({'fitness': ['min', 'max', 'mean', 'std']})
+    fitness = generations[generations['function'] == 'population'].groupby(
+        'generation').agg({'fitness': ['min', 'max', 'mean', 'std']})
     fitness.columns = ["_".join(x) for x in fitness.columns.ravel()]
 
     return fitness
 
 
 def EA_exp(exp_n, gen_f, f, domain, pop_s, par_s, prog_s, mut_p, mut_s, par_selection='Ranking', crossover='None', mutation='random_co_dis', population_new='Ranking'):
-    fitn_res_cols=['run', 'generation', 'fitness_min', 'fitness_max', 'fitness_mean', 'fitness_std']
-    gene_res_cols=['run', 'birthdate', 'generation', 'function', 'fitness', 'gen_x', 'gen_y']
+    fitn_res_cols = ['run', 'generation', 'fitness_min',
+                     'fitness_max', 'fitness_mean', 'fitness_std']
+    gene_res_cols = ['run', 'birthdate', 'generation',
+                     'function', 'fitness', 'gen_x', 'gen_y']
 
     fitness_res = pd.DataFrame(columns=fitn_res_cols)
     genera_res = pd.DataFrame(columns=gene_res_cols)
@@ -212,12 +218,15 @@ def EA_exp(exp_n, gen_f, f, domain, pop_s, par_s, prog_s, mut_p, mut_s, par_sele
         run_n = j
         birthcounter = 0
 
-        population, generations, birthcounter, gen_n = EA_start(pop_s, domain, f, birthcounter)
+        population, generations, birthcounter, gen_n = EA_start(
+            pop_s, domain, f, birthcounter)
 
         for i in range(gen_f):
-            birthcounter, progeny = EA_prog(population, par_s, prog_s, birthcounter, gen_n, mut_p, mut_s, domain, f, par_selection, crossover, mutation)
+            birthcounter, progeny = EA_prog(population, par_s, prog_s, birthcounter,
+                                            gen_n, mut_p, mut_s, domain, f, par_selection, crossover, mutation)
             generations = EA_prog_to_df(generations, progeny)
-            gen_n, population, progeny = EA_new_population(population, progeny, gen_n, pop_s, f, population_new)
+            gen_n, population, progeny = EA_new_population(
+                population, progeny, gen_n, pop_s, f, population_new)
             generations = EA_pop_to_df(generations, population)
 
         fitness = EA_fitn_summary(generations)
@@ -231,7 +240,8 @@ def EA_exp(exp_n, gen_f, f, domain, pop_s, par_s, prog_s, mut_p, mut_s, par_sele
 
     fitness_res = fitness_res[fitn_res_cols]
     fitness_res = fitness_res.sort_values(by=['run', 'generation'])
-    genera_res = genera_res[['run', 'generation', 'birthdate', 'function', 'fitness', 'gen_x', 'gen_y']]
+    genera_res = genera_res[['run', 'generation',
+                             'birthdate', 'function', 'fitness', 'gen_x', 'gen_y']]
     genera_res = genera_res.sort_values(by=['run', 'generation'])
 
     fitness_res = fitness_res.infer_objects()
