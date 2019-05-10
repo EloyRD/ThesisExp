@@ -2,18 +2,49 @@ import numpy as np
 import pandas as pd
 
 
-def shifter(df, col_to_shift, pos_to_move):
-    arr = df.columns.values
-    idx = df.columns.get_loc(col_to_shift)
-    if idx == pos_to_move:
-        pass
-    elif idx > pos_to_move:
-        arr[pos_to_move+1: idx+1] = arr[pos_to_move: idx]
-    else:
-        arr[idx: pos_to_move] = arr[idx+1: pos_to_move+1]
-    arr[pos_to_move] = col_to_shift
-    df.columns = arr
-    return df
+def EA_exp(exp_n, gen_f, f, domain, pop_s, par_s, prog_s, mut_p, mut_s, par_selection='truncation', crossover='none', mutation='random_co_dis', population_new='truncation'):
+    fitn_res_cols = ['run', 'generation', 'fitness_min',
+                     'fitness_max', 'fitness_mean', 'fitness_std']
+    gene_res_cols = ['run', 'birthdate', 'generation',
+                     'function', 'fitness', 'gen_x', 'gen_y']
+
+    fitness_res = pd.DataFrame(columns=fitn_res_cols)
+    genera_res = pd.DataFrame(columns=gene_res_cols)
+
+    for j in range(exp_n):
+        run_n = j
+        birthcounter = 0
+
+        population, generations, birthcounter, gen_n = EA_start(
+            pop_s, domain, f, birthcounter)
+
+        for i in range(gen_f):
+            birthcounter, progeny = EA_prog(population, par_s, prog_s, birthcounter,
+                                            gen_n, mut_p, mut_s, domain, f, par_selection, crossover, mutation)
+            generations = EA_prog_to_df(generations, progeny)
+            gen_n, population, progeny = EA_new_population(
+                population, progeny, gen_n, pop_s, f, population_new)
+            generations = EA_pop_to_df(generations, population)
+
+        fitness = EA_fitn_summary(generations)
+        fitness = fitness.reset_index()
+        fitness.insert(0, 'run', run_n)
+        fitness_res = fitness_res.append(fitness, ignore_index=True)
+
+        generations = generations.reset_index()
+        generations.insert(0, 'run', run_n)
+        genera_res = genera_res.append(generations, ignore_index=True)
+
+    fitness_res = fitness_res[fitn_res_cols]
+    fitness_res = fitness_res.sort_values(by=['run', 'generation'])
+    genera_res = genera_res[['run', 'generation',
+                             'birthdate', 'function', 'fitness', 'gen_x', 'gen_y']]
+    genera_res = genera_res.sort_values(by=['run', 'generation'])
+
+    fitness_res = fitness_res.infer_objects()
+    genera_res = genera_res.infer_objects()
+
+    return genera_res, fitness_res
 
 
 def EA_start(pop_s, domain, f, birthcounter):
@@ -63,20 +94,17 @@ def EA_start(pop_s, domain, f, birthcounter):
     return population, generations, birthcounter, gen_n
 
 
-def EA_prog(population, par_s, prog_s, birthcounter, gen_n, mut_p, mut_s, domain, f, par_selection='Ranking', crossover='Simple', mutation='random_co_dis'):
+def EA_prog(population, par_s, prog_s, birthcounter, gen_n, mut_p, mut_s, domain, f, par_selection='truncation', crossover='simple', mutation='random_co_dis'):
     parents = EA_par_selection(population, par_s, par_selection)
-    progeny = EA_prog_CrosUMut(
+    progeny = EA_prog_cross_u_mut(
         parents, prog_s, birthcounter, mut_p, mut_s, domain, crossover, mutation)
 
     # #Fitness in 3rd column
     progeny[:, 3] = f(progeny[:, 4], progeny[:, 5])
-
     # #Function in 2nd column. "111" and "222" are alias for population and progeny
     progeny[:, 2] = np.ones(par_s)*222
-
     # #Generation number in 1st column
     progeny[:, 1] = np.ones(par_s)*int(gen_n)
-
     # #Birthnumber in first column
     progeny[:, 0] = np.arange(len(progeny)) + (birthcounter + 1)
 
@@ -84,25 +112,29 @@ def EA_prog(population, par_s, prog_s, birthcounter, gen_n, mut_p, mut_s, domain
 
     progeny = progeny[progeny[:, 3].argsort()]
 
+    # Elitist reduction of progeny
     if prog_s < par_s:
         progeny = np.delete(progeny, list(range(prog_s, len(progeny))), axis=0)
 
     return birthcounter, progeny
 
 
-def EA_par_selection(population, par_s, par_selection='Ranking'):
-    if par_selection == 'Ranking':
+def EA_par_selection(population, par_s, par_selection='truncation'):
+    if par_selection == 'truncation':
         parents = np.copy(population)
         parents = parents[parents[:, 3].argsort()]  # Sorting by fitness
         parents = np.delete(parents, list(range(par_s, len(parents))), axis=0)
-
+    elif par_selection == 'fitness_proportional_selection':
+        parents = select_fitness_proportional(population, par_s)
+    elif par_selection == 'tournment_k3':
+        parents = select_tournment_k(population, par_s, 3)
     return parents
 
 
-def EA_prog_CrosUMut(parents, prog_s, birthcounter, mut_p, mut_s, domain, crossover='Simple', mutation='random_co_dis'):
-    if crossover == 'None':
+def EA_prog_cross_u_mut(parents, prog_s, birthcounter, mut_p, mut_s, domain, crossover='simple', mutation='random_co_dis'):
+    if crossover == 'none':
         progeny = np.copy(parents)
-    elif crossover == 'Simple':
+    elif crossover == 'simple':
         progeny = np.copy(parents)
         # Gene sets
         gn1 = progeny[:, -2:]
@@ -140,6 +172,53 @@ def EA_prog_CrosUMut(parents, prog_s, birthcounter, mut_p, mut_s, domain, crosso
     return progeny
 
 
+def EA_new_population(population, progeny, gen_n, pop_s, f, population_new='truncation'):
+    gen_n += 1
+
+    population = np.append(population, progeny, axis=0)  # Overlapping generations
+
+    if population_new == 'truncation':
+        population = population[population[:, 3].argsort()]
+        population = np.delete(population, list(
+            range(pop_s, len(population))), axis=0)
+    elif population_new == 'tournment_k3':
+        population = select_tournment_k(population, pop_s, 3)
+    elif population_new == 'fitness_proportional_selection':
+        population = select_fitness_proportional(population, pop_s)
+
+    # #Fitness in 4th column
+    population[:, 3] = f(population[:, 4], population[:, 5])
+    # #Function in 3rd column. "111" and "222" are alias for parent and progeny
+    population[:, 2] = np.ones(pop_s)*111
+    # #Generation number in 2nd column
+    population[:, 1] = np.ones(pop_s)*int(gen_n)
+
+    # #Resetting progeny array
+    progeny = np.zeros((1, 6))
+
+    population = population[population[:, 3].argsort()]
+
+    return gen_n, population, progeny
+
+
+def select_fitness_proportional(individuals, selection_size):
+    total_fitness = np.sum(individuals[:, 3])
+    select_probs = individuals[:, 3]/total_fitness
+    selected = individuals[np.random.choice(
+        len(individuals), selection_size, p=select_probs)]
+    return selected
+
+
+def select_tournment_k(individuals, selection_size, tournment_size):
+    selected = []
+    for t in range(selection_size):
+        tournment = individuals[np.random.choice(
+            len(individuals), tournment_size)]
+        winner = tournment[individuals[:, 3].argmax()]
+        selected.append(winner)
+    return np.array(selected)
+
+
 def EA_prog_to_df(generations, progeny):
     # Creating data storage
     cols = ['birthdate', 'generation', 'function', 'fitness', 'gen_x', 'gen_y']
@@ -153,33 +232,6 @@ def EA_prog_to_df(generations, progeny):
     generations = generations.infer_objects()
 
     return generations
-
-
-def EA_new_population(population, progeny, gen_n, pop_s, f, population_new='Ranking'):
-    gen_n += 1
-
-    population = np.append(population, progeny, axis=0)
-
-    if population_new == 'Ranking':
-        population = population[population[:, 3].argsort()]
-        population = np.delete(population, list(
-            range(pop_s, len(population))), axis=0)
-
-    # #Fitness in 4th column
-    population[:, 3] = f(population[:, 4], population[:, 5])
-
-    # #Function in 3rd column. "111" and "222" are alias for parent and progeny
-    population[:, 2] = np.ones(pop_s)*111
-
-    # #Generation number in 2nd column
-    population[:, 1] = np.ones(pop_s)*int(gen_n)
-
-    # #Resetting progeny array
-    progeny = np.zeros((1, 6))
-
-    population = population[population[:, 3].argsort()]
-
-    return gen_n, population, progeny
 
 
 def EA_pop_to_df(generations, population):
@@ -205,46 +257,15 @@ def EA_fitn_summary(generations):
     return fitness
 
 
-def EA_exp(exp_n, gen_f, f, domain, pop_s, par_s, prog_s, mut_p, mut_s, par_selection='Ranking', crossover='None', mutation='random_co_dis', population_new='Ranking'):
-    fitn_res_cols = ['run', 'generation', 'fitness_min',
-                     'fitness_max', 'fitness_mean', 'fitness_std']
-    gene_res_cols = ['run', 'birthdate', 'generation',
-                     'function', 'fitness', 'gen_x', 'gen_y']
-
-    fitness_res = pd.DataFrame(columns=fitn_res_cols)
-    genera_res = pd.DataFrame(columns=gene_res_cols)
-
-    for j in range(exp_n):
-        run_n = j
-        birthcounter = 0
-
-        population, generations, birthcounter, gen_n = EA_start(
-            pop_s, domain, f, birthcounter)
-
-        for i in range(gen_f):
-            birthcounter, progeny = EA_prog(population, par_s, prog_s, birthcounter,
-                                            gen_n, mut_p, mut_s, domain, f, par_selection, crossover, mutation)
-            generations = EA_prog_to_df(generations, progeny)
-            gen_n, population, progeny = EA_new_population(
-                population, progeny, gen_n, pop_s, f, population_new)
-            generations = EA_pop_to_df(generations, population)
-
-        fitness = EA_fitn_summary(generations)
-        fitness = fitness.reset_index()
-        fitness.insert(0, 'run', run_n)
-        fitness_res = fitness_res.append(fitness, ignore_index=True)
-
-        generations = generations.reset_index()
-        generations.insert(0, 'run', run_n)
-        genera_res = genera_res.append(generations, ignore_index=True)
-
-    fitness_res = fitness_res[fitn_res_cols]
-    fitness_res = fitness_res.sort_values(by=['run', 'generation'])
-    genera_res = genera_res[['run', 'generation',
-                             'birthdate', 'function', 'fitness', 'gen_x', 'gen_y']]
-    genera_res = genera_res.sort_values(by=['run', 'generation'])
-
-    fitness_res = fitness_res.infer_objects()
-    genera_res = genera_res.infer_objects()
-
-    return genera_res, fitness_res
+def shifter(df, col_to_shift, pos_to_move):
+    arr = df.columns.values
+    idx = df.columns.get_loc(col_to_shift)
+    if idx == pos_to_move:
+        pass
+    elif idx > pos_to_move:
+        arr[pos_to_move+1: idx+1] = arr[pos_to_move: idx]
+    else:
+        arr[idx: pos_to_move] = arr[idx+1: pos_to_move+1]
+    arr[pos_to_move] = col_to_shift
+    df.columns = arr
+    return df
