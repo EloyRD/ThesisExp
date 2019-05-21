@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 
-def EA_exp(exp_n, gen_f, f, domain, pop_s, par_s, prog_s, mut_p, mut_s, par_selection='truncation', crossover='none', mutation='random_all_gau_dis', population_new='truncation'):
+def EA_exp(exp_n, gen_f, f, domain, pop_s, par_s, prog_s, mut_p, mut_s, par_selection='truncation', crossover='none', mutation='random_co_dis', population_new='truncation'):
     fitn_res_cols = ['run', 'generation', 'fitness_min',
                      'fitness_max', 'fitness_mean', 'fitness_std']
     gene_res_cols = ['run', 'birthdate', 'generation',
@@ -29,13 +29,11 @@ def EA_exp(exp_n, gen_f, f, domain, pop_s, par_s, prog_s, mut_p, mut_s, par_sele
         fitness = EA_fitn_summary(generations)
         fitness = fitness.reset_index()
         fitness.insert(0, 'run', run_n)
-        fitness_res = fitness_res.append(
-            fitness, ignore_index=True, sort=False)
+        fitness_res = fitness_res.append(fitness, ignore_index=True)
 
         generations = generations.reset_index()
         generations.insert(0, 'run', run_n)
-        genera_res = genera_res.append(
-            generations, ignore_index=True, sort=False)
+        genera_res = genera_res.append(generations, ignore_index=True)
 
     fitness_res = fitness_res[fitn_res_cols]
     fitness_res = fitness_res.sort_values(by=['run', 'generation'])
@@ -96,7 +94,7 @@ def EA_start(pop_s, domain, f, birthcounter):
     return population, generations, birthcounter, gen_n
 
 
-def EA_prog(population, par_s, prog_s, birthcounter, gen_n, mut_p, mut_s, domain, f, par_selection='truncation', crossover='simple', mutation='random_all_gau_dis'):
+def EA_prog(population, par_s, prog_s, birthcounter, gen_n, mut_p, mut_s, domain, f, par_selection='truncation', crossover='simple', mutation='random_co_dis'):
     parents = EA_par_selection(population, par_s, par_selection)
     progeny = EA_prog_cross_u_mut(
         parents, prog_s, birthcounter, mut_p, mut_s, domain, crossover, mutation)
@@ -128,15 +126,15 @@ def EA_par_selection(population, par_s, par_selection='truncation'):
         parents = np.delete(parents, list(range(par_s, len(parents))), axis=0)
     elif par_selection == 'fitness_proportional_selection':
         parents = select_fitness_proportional(population, par_s)
-    elif par_selection == 'tournament_k3':
-        parents = select_tournament_k(population, par_s, 3)
+    elif par_selection == 'tournment_k3':
+        parents = select_tournment_k(population, par_s, 3)
     return parents
 
 
-def EA_prog_cross_u_mut(parents, prog_s, birthcounter, mut_p, mut_s, domain, crossover='uniform', mutation='random_all_gau_dis'):
+def EA_prog_cross_u_mut(parents, prog_s, birthcounter, mut_p, mut_s, domain, crossover='simple', mutation='random_co_dis'):
     if crossover == 'none':
         progeny = np.copy(parents)
-    elif crossover == 'uniform':
+    elif crossover == 'simple':
         progeny = np.copy(parents)
         # Gene sets
         gn1 = progeny[:, -2:]
@@ -148,28 +146,28 @@ def EA_prog_cross_u_mut(parents, prog_s, birthcounter, mut_p, mut_s, domain, cro
         not_sieve = sieve ^ 1
         progeny[:, -2:] = sieve*gn1 + not_sieve*gn2
 
-    if mutation == 'none':
-        progeny = progeny
-    if mutation == 'random_all_gau_dis':
-        # We modify the x and y values of the progeny
-        for i in range(len(progeny)):
-            r = (np.random.random() < mut_p)
-            if r:
-                progeny[i, 4] = progeny[i, 4] + np.random.normal(scale=mut_s)
-                progeny[i, 5] = progeny[i, 5] + np.random.normal(scale=mut_s)
-    elif mutation == 'random_ind_gau_dis':
+    if mutation == 'random_co_dis':
+        # We unpack the landscape domain
+        (x_min, x_max, y_min, y_max) = domain
+
         # We modify the x and y values of the progeny
         a = list([(i, j) for i in range(len(progeny)) for j in range(4, 6)])
+
         for (i, j) in a:
             r = (np.random.random() < mut_p)
             if r:
-                progeny[i, j] = progeny[i, j] + np.random.normal(scale=mut_s)
-
-    # We unpack the landscape domain
-    (x_min, x_max, y_min, y_max) = domain
-    # We normalize the 
-    progeny[:, 4] = np.clip(progeny[:, 4], x_min, x_max)
-    progeny[:, 5] = np.clip(progeny[:, 5], y_min, y_max)
+                progeny[i, j] = progeny[i, j] + \
+                    (2 * np.random.random() - 1) * mut_s
+                if j == 4:
+                    if progeny[i, j] > x_max:
+                        progeny[i, j] = x_max
+                    if progeny[i, j] < x_min:
+                        progeny[i, j] = x_min
+                if j == 5:
+                    if progeny[i, j] > y_max:
+                        progeny[i, j] = y_max
+                    if progeny[i, j] < y_min:
+                        progeny[i, j] = y_min
 
     return progeny
 
@@ -177,15 +175,14 @@ def EA_prog_cross_u_mut(parents, prog_s, birthcounter, mut_p, mut_s, domain, cro
 def EA_new_population(population, progeny, gen_n, pop_s, f, population_new='truncation'):
     gen_n += 1
 
-    # Overlapping generations
-    population = np.append(population, progeny, axis=0)
+    population = np.append(population, progeny, axis=0)  # Overlapping generations
 
     if population_new == 'truncation':
         population = population[population[:, 3].argsort()]
         population = np.delete(population, list(
             range(pop_s, len(population))), axis=0)
-    elif population_new == 'tournament_k3':
-        population = select_tournament_k(population, pop_s, 3)
+    elif population_new == 'tournment_k3':
+        population = select_tournment_k(population, pop_s, 3)
     elif population_new == 'fitness_proportional_selection':
         population = select_fitness_proportional(population, pop_s)
 
@@ -205,21 +202,19 @@ def EA_new_population(population, progeny, gen_n, pop_s, f, population_new='trun
 
 
 def select_fitness_proportional(individuals, selection_size):
-    fitness_to_prob = individuals[:, 3]
-    fitness_to_prob = 1/(fitness_to_prob - fitness_to_prob.min() + .01)
-    total_ftp = np.sum(fitness_to_prob)
-    select_probs = fitness_to_prob/total_ftp
+    total_fitness = np.sum(individuals[:, 3])
+    select_probs = individuals[:, 3]/total_fitness
     selected = individuals[np.random.choice(
         len(individuals), selection_size, p=select_probs)]
     return selected
 
 
-def select_tournament_k(individuals, selection_size, tournament_size):
+def select_tournment_k(individuals, selection_size, tournment_size):
     selected = []
     for t in range(selection_size):
-        tournament = individuals[np.random.choice(
-            len(individuals), tournament_size)]
-        winner = tournament[tournament[:, 3].argmin()]
+        tournment = individuals[np.random.choice(
+            len(individuals), tournment_size)]
+        winner = tournment[individuals[:, 3].argmax()]
         selected.append(winner)
     return np.array(selected)
 
@@ -229,7 +224,7 @@ def EA_prog_to_df(generations, progeny):
     cols = ['birthdate', 'generation', 'function', 'fitness', 'gen_x', 'gen_y']
     prog = pd.DataFrame(progeny, columns=cols)
 
-    generations = generations.append(prog, ignore_index=True, sort=False)
+    generations = generations.append(prog, ignore_index=True)
 
     query = generations['function'] == 222
     generations.loc[query, 'function'] = 'progeny'
@@ -244,7 +239,7 @@ def EA_pop_to_df(generations, population):
     cols = ['birthdate', 'generation', 'function', 'fitness', 'gen_x', 'gen_y']
     pop = pd.DataFrame(population, columns=cols)
 
-    generations = generations.append(pop, ignore_index=True, sort=False)
+    generations = generations.append(pop, ignore_index=True)
 
     query = generations['function'] == 111
     generations.loc[query, "function"] = 'population'
