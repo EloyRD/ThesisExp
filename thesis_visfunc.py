@@ -45,7 +45,8 @@ def EA_plt_land(f, domain, point, steps, a=30, b=-60, imgsize=(15, 10), min_f='N
     rcount, ccount, _ = colors.shape
     ax.view_init(a, b)  # Visualization angles
     # # Plotting points
-    ax.scatter(x_plot, y_plot, f(x_plot, y_plot), color='r', s=20)
+    ax.scatter(x_plot, y_plot, f(x_plot, y_plot),
+               color='r', s=20, label='Minima')
     # # Plotting surface
     surf = ax.plot_surface(X, Y, Z, rcount=rcount,
                            ccount=ccount, facecolors=colors, shade=False)
@@ -57,6 +58,7 @@ def EA_plt_land(f, domain, point, steps, a=30, b=-60, imgsize=(15, 10), min_f='N
     ax.set_zlabel('fitness')
     # ax.set_aspect('auto')
     ax.autoscale_view(True, True, True, True)
+    ax.legend()
 
     # Plotting level curves
     # # Plotting points
@@ -103,7 +105,7 @@ def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=30, b=-60, imgsize=
     # Plotting the surface
     ax.view_init(a, b)
     # # Plotting points
-    ax.scatter(xp, yp, zp, color='r', s=20)
+    ax.scatter(xp, yp, zp, color='r', s=20, label='population')
     # # Plotting surface
     ax.plot_surface(X, Y, Z, cmap='viridis', alpha=0.3, linewidth=0)
     if min_f != 'None':
@@ -113,6 +115,7 @@ def EA_plt_pop(f, domain, steps, genera_res, run_s, gen_s, a=30, b=-60, imgsize=
     ax.set_zlabel('fitness')
     # ax.set_aspect('auto')
     ax.autoscale_view(True, True, True, True)
+    ax.legend()
 
     # Plotting level curves
     # # Plotting points
@@ -165,8 +168,8 @@ def EA_plt_gen(f, domain, steps, genera_res, run_s, gen_s, a=30, b=-60, imgsize=
     # Plotting the surface
     ax.view_init(a, b)
     # # Plotting points
-    ax.scatter(xp, yp, zp, color='r', s=20)
-    ax.scatter(xg, yg, zg, color='g', s=17.5)
+    ax.scatter(xp, yp, zp, color='r', s=20, label='population')
+    ax.scatter(xg, yg, zg, color='g', s=17.5, label='progeny')
     # # Plotting surface
     ax.plot_surface(X, Y, Z, cmap='viridis', alpha=0.3, linewidth=0)
     if min_f != 'None':
@@ -176,6 +179,7 @@ def EA_plt_gen(f, domain, steps, genera_res, run_s, gen_s, a=30, b=-60, imgsize=
     ax.set_zlabel('fitness')
     # ax.set_aspect('auto')
     ax.autoscale_view(True, True, True, True)
+    ax.legend()
 
     # Plotting level curves
     # # Plotting points
