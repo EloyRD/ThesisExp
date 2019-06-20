@@ -9,3 +9,4 @@ node_modules/
 *.log
 Test*.ipynb
 package-lock.json
+*.epub
