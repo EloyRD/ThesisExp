@@ -10,3 +10,5 @@ node_modules/
 Test*.ipynb
 package-lock.json
 *.epub
+*.joblib
+thesis.yml

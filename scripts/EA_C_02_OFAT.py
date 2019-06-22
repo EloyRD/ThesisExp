@@ -246,6 +246,9 @@ exp_n = 1
 exp_par = list(it.product(pop_size_lvl, [b_ratio_lvl[0]], [cx_pb_lvl[0]], [mut_pb_lvl[0]], [mut_sig_lvl[0]], [k_par_lvl[0]], [k_sur_lvl[0]]))
 exp_par
 
+# %% [markdown]
+# ### Executing the experiment
+
 # %%
 # %%time
 logbook.clear()
@@ -289,35 +292,7 @@ if __name__ == "__main__":
                 record = stat.compile(pop)
                 logbook.record(exp=exp_n, pop=pop_size, b_ratio=b_ratio, cx_pb=cx_pb, mut_pb=mut_pb, mut_sig=mut_sig, k_par=k_par, k_sur=k_sur, rep=rep_n+1, seed=rep_seed, gen=gen_n+1, **record)
 
-# %% [markdown]
-# ### Executing the experiment
-
 # %%
-# %%time
-
-for level in pop_s_levels:
-    pop_s = level
-
-    fitness_res = EAf.EA_exp_only_fitness(
-        rep_n, gen_f, f, domain, pop_s, par_s, prog_s, mut_p, mut_s, par_selection, crossover, mutation, sur_selection)
-    fitness_res.insert(0, 's_sel', sur_selection)
-    fitness_res.insert(0, 'p_sel', par_selection)
-    fitness_res.insert(0, 'mut_s', mut_s)
-    fitness_res.insert(0, 'mut_p', mut_p)
-    fitness_res.insert(0, 'b', b)
-    fitness_res.insert(0, 'pop_s', pop_s)
-    fitness_res.insert(0, 'exp', exp_n)
-    multi_fit = multi_fit.append(fitness_res, ignore_index=True, sort=False)
-    multi_fit = multi_fit.infer_objects()
-
-# %%
-# Resetting the factor to its default value
-pop_s = 20
-
-# %%
-# b = 3
-# prog_s = int(b * pop_s)
-# par_s = prog_s
 
 # %% [markdown] {"toc-hr-collapsed": true}
 # ## 2nd experiment: Varying progeny-to-population ratio (Factor b)

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
@@ -42,6 +43,7 @@ import matplotlib.pyplot as plt
 
 import thesis_EAfunc as EAf
 import thesis_visfunc as EAv
+import joblib
 
 from deap import base, creator, tools
 
@@ -276,7 +278,7 @@ np.random.seed(42)
 
 # Algorithm parameters
 # Number of replicates
-rep_end = 30
+rep_end = 50
 
 # %% [markdown]
 # ### Execution
@@ -411,5 +413,18 @@ fig, ax = plt.subplots()
 ax = sns.lineplot(x='gen', y='best', data=fitness_res[query], label='best fitness')
 ax.set(xlabel='generation', ylabel='fitness')
 ax.plot()
+
+# %%
+# %%time
+pickle_file = './C_01.joblib'
+
+with open(pickle_file, 'wb') as handle:
+    joblib.dump(logbook, handle, compress='xz')
+    
+with open(pickle_file, 'rb') as handle:
+    logb = joblib.load(handle)
+
+# %%
+logb == logbook
 
 # %%
