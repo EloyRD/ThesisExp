@@ -7,11 +7,11 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.2'
-#       jupytext_version: 1.1.5
+#       jupytext_version: 1.1.6
 #   kernelspec:
-#     display_name: Python [conda env:thesis] *
+#     display_name: Python [conda env:ea_thesis] *
 #     language: python
-#     name: conda-env-thesis-py
+#     name: conda-env-ea_thesis-py
 # ---
 
 # %% [raw]
@@ -30,31 +30,31 @@
 # Importing python packages and setting display parameters
 
 # %%
-import numpy as np
-import pandas as pd
-
 import math as mt
 import random as rnd
-import statistics as stats
-
-import seaborn as sns
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-
-import thesis_EAfunc as EAf
-import thesis_visfunc as EAv
-import joblib
+import numpy as np
 
 from deap import base, creator, tools
 
+import numba
+from numba import jit
+import joblib
+
+import matplotlib as mpl
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+import pandas as pd
+import statistics as stats
+
 # %%
-plt.style.use('bmh')
-plt.rcParams.update({'figure.autolayout': True})
+plt.style.use("bmh")
+plt.rcParams.update({"figure.autolayout": True})
 # %matplotlib inline
 # %config InlineBackend.figure_format = 'retina'
 
-pd.set_option('display.latex.repr', True)
-pd.set_option('display.latex.longtable', True)
+pd.set_option("display.latex.repr", True)
+pd.set_option("display.latex.longtable", True)
 
 # %% [markdown] {"toc-hr-collapsed": false}
 # # Fitness Landscape Definition
@@ -77,26 +77,37 @@ img_size = (8.5, 4.25)
 # Problem definition
 
 
+@jit
 def g_fun(x, y):
-    mag = np.sqrt(x**2. + y**2.)
-    val = -(50.*np.sinc(mag/np.pi) - mag)
+    mag = np.sqrt(x ** 2.0 + y ** 2.0)
+    val = -(50.0 * np.sinc(mag / np.pi) - mag)
     return val.item()
 
 
+@jit
 def f_fun(x, y):
     x_min = -6.01717
     y_min = 9.06022
-    f_min = g_fun(x_min+11., y_min+9.) + g_fun(x_min-11.,
-                                       y_min-3.) + g_fun(x_min+6., y_min-9.)
-    tripsinc = g_fun(x+11., y+9.) + g_fun(x-11., y-3.) + g_fun(x+6., y-9.) - (f_min)
+    f_min = (
+        g_fun(x_min + 11.0, y_min + 9.0)
+        + g_fun(x_min - 11.0, y_min - 3.0)
+        + g_fun(x_min + 6.0, y_min - 9.0)
+    )
+    tripsinc = (
+        g_fun(x + 11.0, y + 9.0)
+        + g_fun(x - 11.0, y - 3.0)
+        + g_fun(x + 6.0, y - 9.0)
+        - (f_min)
+    )
     return tripsinc
 
 
 # %%
+@jit
 def evaluate(individual):
     x = individual[0]
     y = individual[1]
-    fitness = f_fun(x,y)
+    fitness = f_fun(x, y)
     return (fitness,)
 
 
@@ -106,7 +117,7 @@ print(f_fun(-6.01717, 9.06022))
 
 # %%
 # Testing the function
-print(f_fun(-1., -1.), f_fun(-11., -9.), f_fun(11., 3.), f_fun(-6., 9.))
+print(f_fun(-1.0, -1.0), f_fun(-11.0, -9.0), f_fun(11.0, 3.0), f_fun(-6.0, 9.0))
 
 # %% [markdown] {"toc-hr-collapsed": false}
 # # Running the Evolutionary Algorithm
@@ -119,6 +130,7 @@ print(f_fun(-1., -1.), f_fun(-11., -9.), f_fun(11., 3.), f_fun(-6., 9.))
 # Number of replicates, and generations per experiment
 rep_end = 1
 gen_end = 5000
+births_end = 250e3
 
 # Genes
 gen_size = 2
@@ -130,17 +142,17 @@ par_size = b_ratio * pop_size
 
 # Progeny parameters
 ## Crossover probability per gene
-cx_pb = .5
+cx_pb = 0.5
 ## Mutation probability per gene
-mut_pb = .5
+mut_pb = 0.5
 ## Mutation strength
 sigma = 2.5
 
 # Selection by tournament
 # Tournament size parent selection
-k_p=2
+k_p = 2
 # Tournament size survivor selection
-k_s=6
+k_s = 6
 
 # %% [markdown]
 # ## Defining the EA elements
@@ -160,7 +172,9 @@ toolbox = base.Toolbox()
 
 # %%
 toolbox.register("attr_float", rnd.uniform, -15, 15)
-toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_float, n=gen_size)
+toolbox.register(
+    "individual", tools.initRepeat, creator.Individual, toolbox.attr_float, n=gen_size
+)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
 # %% [markdown]
@@ -181,11 +195,11 @@ toolbox.register("sur_select", tools.selTournament, tournsize=k_s)
 # %%
 stat = tools.Statistics(key=lambda ind: ind.fitness.values[0])
 
-stat.register('med', stats.median)
-stat.register('avg', stats.mean)
-stat.register('std', stats.stdev)
-stat.register('best', min)
-stat.register('worst', max)
+stat.register("med", stats.median)
+stat.register("avg", stats.mean)
+stat.register("std", stats.stdev)
+stat.register("best", min)
+stat.register("worst", max)
 
 # %% [markdown]
 # We invoque the data recording logbook.
@@ -208,7 +222,7 @@ rnd.seed(42)
 # %%time
 if __name__ == "__main__":
     for rep_n in range(rep_end):
-        rep_seed = rnd.randint(0,999)
+        rep_seed = rnd.randint(0, 999)
         rnd.seed(rep_seed)
         # We initialize the population and evaluate the individuals' fitnesses
         pop = toolbox.population(n=pop_size)
@@ -217,17 +231,18 @@ if __name__ == "__main__":
             ind.fitness.values = fit
         # We start the logbook
         record = stat.compile(pop)
-        logbook.record(rep=rep_n+1, seed=rep_seed, gen=0, **record)
+        births = len(pop)
+        logbook.record(rep=rep_n + 1, seed=rep_seed, births=births, **record)
 
-        for gen_n in range(gen_end):
+        while births < births_end:
             # Select Parents and clone them as base for offsprings
             parents = toolbox.par_select(pop, par_size)
             offspring = [toolbox.clone(ind) for ind in pop]
+            births = births + len(offspring)
 
-            # Aplly crossover    
+            # Aplly crossover
             for child1, child2 in zip(offspring[::2], offspring[1::2]):
                 toolbox.mate(child1, child2)
-                del child1.fitness.values, child2.fitness.values
 
             # Apply mutation
             for mutant in offspring:
@@ -238,10 +253,10 @@ if __name__ == "__main__":
             for ind, fit in zip(offspring, fitnesses):
                 ind.fitness.values = fit
 
-            pop = toolbox.sur_select((pop+offspring), pop_size)
+            pop = toolbox.sur_select((pop + offspring), pop_size)
 
             record = stat.compile(pop)
-            logbook.record(rep=rep_n+1, seed=rep_seed, gen=gen_n+1, **record)
+            logbook.record(rep=rep_n + 1, seed=rep_seed, births=births, **record)
 
 # %% [markdown] {"toc-hr-collapsed": false}
 # ### Data Analysis
@@ -258,8 +273,8 @@ fitness_res = pd.DataFrame.from_dict(pop_records)
 
 # %%
 fig, ax = plt.subplots()
-ax = sns.lineplot(x='gen', y='best', data=fitness_res, label='best fitness')
-ax.set(xlabel='generation', ylabel='fitness')
+ax = sns.lineplot(x="births", y="best", data=fitness_res, label="best fitness")
+ax.set(xlabel="births", ylabel="fitness", xscale="log")
 ax.plot()
 
 # %% [markdown] {"toc-hr-collapsed": false}
@@ -274,7 +289,7 @@ ax.plot()
 
 # %%
 # Restarting seed
-np.random.seed(42)
+rnd.seed(42)
 
 # Algorithm parameters
 # Number of replicates
@@ -289,7 +304,7 @@ logbook.clear()
 
 if __name__ == "__main__":
     for rep_n in range(rep_end):
-        rep_seed = rnd.randint(0,999)
+        rep_seed = rnd.randint(0, 999)
         rnd.seed(rep_seed)
         # We initialize the population and evaluate the individuals' fitnesses
         pop = toolbox.population(n=pop_size)
@@ -298,17 +313,18 @@ if __name__ == "__main__":
             ind.fitness.values = fit
         # We start the logbook
         record = stat.compile(pop)
-        logbook.record(rep=rep_n+1, seed=rep_seed, gen=0, **record)
+        births = len(pop)
+        logbook.record(rep=rep_n + 1, seed=rep_seed, births=births, **record)
 
-        for gen_n in range(gen_end):
+        while births < births_end:
             # Select Parents and clone them as base for offsprings
             parents = toolbox.par_select(pop, par_size)
             offspring = [toolbox.clone(ind) for ind in pop]
+            births = births + len(offspring)
 
-            # Aplly crossover    
+            # Aplly crossover
             for child1, child2 in zip(offspring[::2], offspring[1::2]):
                 toolbox.mate(child1, child2)
-                del child1.fitness.values, child2.fitness.values
 
             # Apply mutation
             for mutant in offspring:
@@ -319,10 +335,21 @@ if __name__ == "__main__":
             for ind, fit in zip(offspring, fitnesses):
                 ind.fitness.values = fit
 
-            pop = toolbox.sur_select((pop+offspring), pop_size)
+            pop = toolbox.sur_select((pop + offspring), pop_size)
 
             record = stat.compile(pop)
-            logbook.record(rep=rep_n+1, seed=rep_seed, gen=gen_n+1, **record)
+            logbook.record(rep=rep_n + 1, seed=rep_seed, births=births + 1, **record)
+
+# %%
+pickle_file = "./pickle/C_01.joblib"
+
+# %%
+with open(pickle_file, "wb") as handle:
+    joblib.dump(logbook, handle, compress="xz")
+
+# %%
+with open(pickle_file, "rb") as handle:
+    logb = joblib.load(handle)
 
 # %% [markdown] {"toc-hr-collapsed": false}
 # ### Data Analysis
@@ -331,28 +358,28 @@ if __name__ == "__main__":
 # We transform the records into a Data Frame
 
 # %%
-pop_records = [record for record in logbook]
+pop_records = [record for record in logb]
 fitness_res = pd.DataFrame.from_dict(pop_records)
 
 # %% [markdown]
 # We filter the values of the last generation
 
 # %%
-last_gen = fitness_res['gen'].max()
-query = (fitness_res['gen'] == last_gen)
+last_gen = fitness_res["gen"].max()
+query = fitness_res["gen"] == last_gen
 fin_fit_res = fitness_res[query]
 
 # %% [markdown]
 # Top 10 best (lowest-fitness) individuals
 
 # %%
-fin_fit_res.sort_values(by=['best']).head(10)
+fin_fit_res.sort_values(by=["best"]).head(10)
 
 # %% [markdown]
 # Top 10 best (highest-fitness) individuals
 
 # %%
-fin_fit_res.sort_values(by=['best'], ascending=False).head(10)
+fin_fit_res.sort_values(by=["best"], ascending=False).head(10)
 
 # %% [markdown] {"toc-hr-collapsed": false}
 # ### Visualization
@@ -361,70 +388,65 @@ fin_fit_res.sort_values(by=['best'], ascending=False).head(10)
 # #### Aggregated results
 
 # %%
-fin_fit_best = fin_fit_res['best']
-fin_fit_stdv = fin_fit_res['std']
+fin_fit_best = fin_fit_res["best"]
+fin_fit_stdv = fin_fit_res["std"]
 type(fin_fit_best)
 
 # %%
 fig, ax = plt.subplots()
-ax = sns.distplot(fin_fit_best, rug=True, kde=False, bins=7, hist_kws={'range':(-.5, 6.5)}, axlabel='fitness', label='best')
+ax = sns.distplot(
+    fin_fit_best,
+    rug=True,
+    kde=False,
+    bins=7,
+    hist_kws={"range": (-0.5, 6.5)},
+    axlabel="fitness",
+    label="best",
+)
 start, end = ax.get_ylim()
-ax.yaxis.set_ticks(np.arange(start, end+1, 2.0))
-ax.set(ylabel='frequency', ylim=(None,end+1))
+ax.yaxis.set_ticks(np.arange(start, end + 1, 2.0))
+ax.set(ylabel="frequency", ylim=(None, end + 1))
 ax.legend()
 ax.plot()
 
 # %%
 fig, ax = plt.subplots()
-ax = sns.distplot(fin_fit_stdv, rug=True, kde=False, axlabel='fitness', label='std')
-#start, end = ax.get_ylim()
-#ax.yaxis.set_ticks(np.arange(start, end+1, 2.0))
-ax.set(ylabel='frequency')
+ax = sns.distplot(fin_fit_stdv, rug=True, kde=False, axlabel="fitness", label="std")
+# start, end = ax.get_ylim()
+# ax.yaxis.set_ticks(np.arange(start, end+1, 2.0))
+ax.set(ylabel="frequency")
 ax.legend()
 ax.plot()
 
 # %%
 # %%time
 fig, ax = plt.subplots()
-ax = sns.lineplot(x='gen', y='best', data=fitness_res, label='best fitness')
-ax.set(xlabel='generation', ylabel='fitness')
+ax = sns.lineplot(x="gen", y="best", data=fitness_res, label="best fitness")
+ax.set(xlabel="generation", ylabel="fitness")
 ax.plot()
 
 # %%
 # %%time
-query = (fitness_res['gen'] <= 200)
+query = fitness_res["gen"] <= 200
 fig, ax = plt.subplots()
-ax = sns.lineplot(x='gen', y='best', data=fitness_res[query], label='best fitness')
-ax.set(xlabel='generation', ylabel='fitness')
+ax = sns.lineplot(x="gen", y="best", data=fitness_res[query], label="best fitness")
+ax.set(xlabel="generation", ylabel="fitness")
 ax.plot()
 
 # %%
 # %%time
-query = (fitness_res['gen'] >= 200) & (fitness_res['gen'] <= 1000)
+query = (fitness_res["gen"] >= 200) & (fitness_res["gen"] <= 1000)
 fig, ax = plt.subplots()
-ax = sns.lineplot(x='gen', y='best', data=fitness_res[query], label='best fitness')
-ax.set(xlabel='generation', ylabel='fitness')
+ax = sns.lineplot(x="gen", y="best", data=fitness_res[query], label="best fitness")
+ax.set(xlabel="generation", ylabel="fitness")
 ax.plot()
 
 # %%
 # %%time
-query = (fitness_res['gen'] >= 4500) & (fitness_res['gen'] <= 5000)
+query = (fitness_res["gen"] >= 4500) & (fitness_res["gen"] <= 5000)
 fig, ax = plt.subplots()
-ax = sns.lineplot(x='gen', y='best', data=fitness_res[query], label='best fitness')
-ax.set(xlabel='generation', ylabel='fitness')
+ax = sns.lineplot(x="gen", y="best", data=fitness_res[query], label="best fitness")
+ax.set(xlabel="generation", ylabel="fitness")
 ax.plot()
-
-# %%
-# %%time
-pickle_file = './C_01.joblib'
-
-with open(pickle_file, 'wb') as handle:
-    joblib.dump(logbook, handle, compress='xz')
-    
-with open(pickle_file, 'rb') as handle:
-    logb = joblib.load(handle)
-
-# %%
-logb == logbook
 
 # %%

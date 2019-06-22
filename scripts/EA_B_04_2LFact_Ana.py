@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.2'
-#       jupytext_version: 1.1.3
+#       jupytext_version: 1.1.6
 #   kernelspec:
 #     display_name: Python [conda env:thesis] *
 #     language: python
@@ -42,12 +42,12 @@ import thesis_EAfunc as EAf
 import thesis_visfunc as EAv
 
 # %%
-plt.style.use('bmh')
+plt.style.use("bmh")
 # %matplotlib inline
 # %config InlineBackend.figure_format = 'retina'
 
-pd.set_option('display.latex.repr', True)
-pd.set_option('display.latex.longtable', True)
+pd.set_option("display.latex.repr", True)
+pd.set_option("display.latex.longtable", True)
 
 # %% [markdown]
 # # Reading data
@@ -59,7 +59,7 @@ pd.set_option('display.latex.longtable', True)
 # Reading the Data Frame from a pickle file
 
 # %%
-multi_fit = pd.read_pickle('./Data/TEST_B_2L_FitData.gz', compression='gzip')
+multi_fit = pd.read_pickle("./Data/TEST_B_2L_FitData.gz", compression="gzip")
 
 # %% [markdown]
 # Replicates in the sample
@@ -71,8 +71,8 @@ len(multi_fit) / (201)
 # ## DOE data and encoded values
 
 # %%
-doe = pd.read_pickle('./Data/TEST_B_DOE_data.gz', compression='gzip')
-coded_values = pd.read_pickle('./Data/TEST_B_DOE_code.gz', compression='gzip')
+doe = pd.read_pickle("./Data/TEST_B_DOE_data.gz", compression="gzip")
+coded_values = pd.read_pickle("./Data/TEST_B_DOE_code.gz", compression="gzip")
 coded_values
 
 # %%
@@ -89,39 +89,48 @@ doe.head()
 
 # %%
 fig, ax = plt.subplots()
-h = ax.hist2d(x='generation', y='fitness_min', bins=(
-    100, 160), cmap='gist_heat_r', data=multi_fit)
-ax.set_xlabel('generation')
-ax.set_ylabel('fitness_min')
+h = ax.hist2d(
+    x="generation", y="fitness_min", bins=(100, 160), cmap="gist_heat_r", data=multi_fit
+)
+ax.set_xlabel("generation")
+ax.set_ylabel("fitness_min")
 ax.set_xlim(0, 200)
 ax.set_ylim(0, 15)
 cb = fig.colorbar(h[3], ax=ax)
-cb.set_label('count')
+cb.set_label("count")
 plt.tight_layout()
 
 # %%
 fig, ax = plt.subplots()
-h = ax.hist2d(x='generation', y='fitness_std', bins=(
-    100, 60), cmap='gist_heat_r', data=multi_fit)
-ax.set_xlabel('generation')
-ax.set_ylabel('fitness_std')
+h = ax.hist2d(
+    x="generation", y="fitness_std", bins=(100, 60), cmap="gist_heat_r", data=multi_fit
+)
+ax.set_xlabel("generation")
+ax.set_ylabel("fitness_std")
 ax.set_xlim(0, 200)
 ax.set_ylim(0, 15)
 cb = fig.colorbar(h[3], ax=ax)
-cb.set_label('count')
+cb.set_label("count")
 plt.tight_layout()
 
 # %% [markdown]
 # Average value of minimum fitness for each generation
 
 # %%
-sns.lineplot(x='generation', y='fitness_min', data=multi_fit)
+sns.lineplot(x="generation", y="fitness_min", data=multi_fit)
 
 # %%
 # %%time
-hue = 's_sel'
-g = sns.relplot(x='generation', y='fitness_min', col='b',
-                row='p_sel', hue=hue, kind='line', data=multi_fit[multi_fit['pop_s'] == 160])
+hue = "s_sel"
+g = sns.relplot(
+    x="generation",
+    y="fitness_min",
+    col="b",
+    row="p_sel",
+    hue=hue,
+    kind="line",
+    data=multi_fit[multi_fit["pop_s"] == 160],
+)
 
 leg = g._legend
 leg.set_bbox_to_anchor([0.65, 0.95])
@@ -134,56 +143,58 @@ leg._loc = 1
 # Histogram of minimum (best) fitness of final population
 
 # %%
-sns.distplot(doe['f_min'], rug=False, kde=False)
+sns.distplot(doe["f_min"], rug=False, kde=False)
 
 # %% [markdown]
 # Minimum fitness vs standard deviation (final population)
 
 # %%
-hexplot = sns.jointplot(x="f_min", y="f_std", kind='hex', data=doe)
+hexplot = sns.jointplot(x="f_min", y="f_std", kind="hex", data=doe)
 # shrink fig so cbar is visible
 plt.subplots_adjust(left=0.1, right=0.8, top=0.8, bottom=0.1)
 # make new ax object for the cbar
-cbar_ax = hexplot.fig.add_axes([.85, .1, .02, .6])  # x, y, width, height
+cbar_ax = hexplot.fig.add_axes([0.85, 0.1, 0.02, 0.6])  # x, y, width, height
 cbar = plt.colorbar(cax=cbar_ax)
-cbar.set_label('count')
+cbar.set_label("count")
 plt.show()
 
 # %%
-query = (doe['f_min'] < 10) & (doe['f_std'] < 15)
-hexplot = sns.jointplot(x="f_min", y="f_std", kind='hex',
-                        joint_kws=dict(gridsize=20), data=doe[query])
+query = (doe["f_min"] < 10) & (doe["f_std"] < 15)
+hexplot = sns.jointplot(
+    x="f_min", y="f_std", kind="hex", joint_kws=dict(gridsize=20), data=doe[query]
+)
 # shrink fig so cbar is visible
 plt.subplots_adjust(left=0.1, right=0.8, top=0.8, bottom=0.1)
 # make new ax object for the cbar
-cbar_ax = hexplot.fig.add_axes([.85, .1, .02, .6])  # x, y, width, height
+cbar_ax = hexplot.fig.add_axes([0.85, 0.1, 0.02, 0.6])  # x, y, width, height
 cbar = plt.colorbar(cax=cbar_ax)
-cbar.set_label('count')
+cbar.set_label("count")
 plt.show()
 
 # %% [markdown]
 # Minimum fitness vs mean fitness (final population)
 
 # %%
-hexplot = sns.jointplot(x="f_min", y="f_mean", kind='hex', data=doe)
+hexplot = sns.jointplot(x="f_min", y="f_mean", kind="hex", data=doe)
 # shrink fig so cbar is visible
 plt.subplots_adjust(left=0.1, right=0.8, top=0.8, bottom=0.1)
 # make new ax object for the cbar
-cbar_ax = hexplot.fig.add_axes([.85, .1, .02, .6])  # x, y, width, height
+cbar_ax = hexplot.fig.add_axes([0.85, 0.1, 0.02, 0.6])  # x, y, width, height
 cbar = plt.colorbar(cax=cbar_ax)
-cbar.set_label('count')
+cbar.set_label("count")
 plt.show()
 
 # %%
-query = (doe['f_min'] < 10) & (doe['f_mean'] < 10)
-hexplot = sns.jointplot(x="f_min", y="f_mean", kind='hex',
-                        joint_kws=dict(gridsize=20), data=doe[query])
+query = (doe["f_min"] < 10) & (doe["f_mean"] < 10)
+hexplot = sns.jointplot(
+    x="f_min", y="f_mean", kind="hex", joint_kws=dict(gridsize=20), data=doe[query]
+)
 # shrink fig so cbar is visible
 plt.subplots_adjust(left=0.1, right=0.8, top=0.8, bottom=0.1)
 # make new ax object for the cbar
-cbar_ax = hexplot.fig.add_axes([.85, .1, .02, .6])  # x, y, width, height
+cbar_ax = hexplot.fig.add_axes([0.85, 0.1, 0.02, 0.6])  # x, y, width, height
 cbar = plt.colorbar(cax=cbar_ax)
-cbar.set_label('count')
+cbar.set_label("count")
 plt.show()
 
 # %% [markdown] {"toc-hr-collapsed": false}
@@ -218,8 +229,7 @@ print(obs_list)
 effects = {}
 
 # Start with the constant effect: this is $\overline{y}$
-effects[0] = {'x0': [doe['f_min'].mean(), doe['f_max'].mean(),
-                     doe['f_mean'].mean()]}
+effects[0] = {"x0": [doe["f_min"].mean(), doe["f_max"].mean(), doe["f_mean"].mean()]}
 print(effects[0])
 
 # %% [markdown]
@@ -231,7 +241,7 @@ for key in labels[1]:
     effects_result = []
     for obs in obs_list:
         effects_df = doe.groupby(key)[obs].mean()
-        result = sum([zz*effects_df.loc[zz] for zz in effects_df.index])
+        result = sum([zz * effects_df.loc[zz] for zz in effects_df.index])
         effects_result.append(result)
     effects[1][key] = effects_result
 
@@ -247,8 +257,12 @@ for c in [2, 3, 4, 5, 6]:
         effects_result = []
         for obs in obs_list:
             effects_df = doe.groupby(key)[obs].mean()
-            result = sum([np.prod(zz)*effects_df.loc[zz]/(2**(len(zz)-1))
-                          for zz in effects_df.index])
+            result = sum(
+                [
+                    np.prod(zz) * effects_df.loc[zz] / (2 ** (len(zz) - 1))
+                    for zz in effects_df.index
+                ]
+            )
             effects_result.append(result)
         effects[c][key] = effects_result
 
@@ -288,21 +302,21 @@ master_df.head()
 n = 30
 k = 6
 
-y1 = master_df[['f_min']].copy()
-y1 = y1.iloc[y1['f_min'].abs().argsort].iloc[::-1]
-y1 = y1.drop('x0')
-y1.columns = ['Effects_Estimate']
-y1.index.names = ['Factors']
-y1['Sum_of_Squares'] = y1['Effects_Estimate']**2 * n * (2**(k-2))
+y1 = master_df[["f_min"]].copy()
+y1 = y1.iloc[y1["f_min"].abs().argsort].iloc[::-1]
+y1 = y1.drop("x0")
+y1.columns = ["Effects_Estimate"]
+y1.index.names = ["Factors"]
+y1["Sum_of_Squares"] = y1["Effects_Estimate"] ** 2 * n * (2 ** (k - 2))
 
-SS_tot = (doe['f_min']**2).sum() - ((doe['f_min'].sum()**2)/len(doe['f_min']))
-SS_err = SS_tot - (y1['Sum_of_Squares'].sum())
-y1['%_Contribution'] = y1['Sum_of_Squares']/SS_tot*100
+SS_tot = (doe["f_min"] ** 2).sum() - ((doe["f_min"].sum() ** 2) / len(doe["f_min"]))
+SS_err = SS_tot - (y1["Sum_of_Squares"].sum())
+y1["%_Contribution"] = y1["Sum_of_Squares"] / SS_tot * 100
 
 # %%
-y1.loc['Error'] = [None, SS_err, SS_err/SS_tot*100]
-y1.loc['Total'] = [None, SS_tot, SS_tot/SS_tot*100]
-y1.loc['Model'] = [None, SS_tot-SS_err, (SS_tot-SS_err)/SS_tot*100]
+y1.loc["Error"] = [None, SS_err, SS_err / SS_tot * 100]
+y1.loc["Total"] = [None, SS_tot, SS_tot / SS_tot * 100]
+y1.loc["Model"] = [None, SS_tot - SS_err, (SS_tot - SS_err) / SS_tot * 100]
 
 # %% [markdown]
 # Top 10 effects for observable 'minimum fitness (final population)':
@@ -318,18 +332,18 @@ y1.iloc[np.r_[-1, 0:9, -3, -2]]
 
 # %%
 ANOVA_y1 = y1.copy()
-ANOVA_y1 = ANOVA_y1.drop('Effects_Estimate', axis=1)
-ANOVA_y1['Dgrs. Freedom'] = 1
-df_tot = len(doe['f_min'])-1
+ANOVA_y1 = ANOVA_y1.drop("Effects_Estimate", axis=1)
+ANOVA_y1["Dgrs. Freedom"] = 1
+df_tot = len(doe["f_min"]) - 1
 df_err = df_tot - len(master_df)
 
-ANOVA_y1['Mean Sqrs'] = ANOVA_y1['Sum_of_Squares']/1
+ANOVA_y1["Mean Sqrs"] = ANOVA_y1["Sum_of_Squares"] / 1
 ms_err = SS_err / df_err
 
-ANOVA_y1['F ratio'] = ANOVA_y1['Mean Sqrs']/ms_err
+ANOVA_y1["F ratio"] = ANOVA_y1["Mean Sqrs"] / ms_err
 sig_level = 0.05
-ANOVA_y1['F critical'] = stats.f.ppf(q=1-sig_level, dfn=1, dfd=df_tot)
-ANOVA_y1['Significant'] = (ANOVA_y1['F ratio'] > ANOVA_y1['F critical'])
+ANOVA_y1["F critical"] = stats.f.ppf(q=1 - sig_level, dfn=1, dfd=df_tot)
+ANOVA_y1["Significant"] = ANOVA_y1["F ratio"] > ANOVA_y1["F critical"]
 
 # %%
 df_show = ANOVA_y1.iloc[np.r_[-1, 0:10, -3, -2]]
@@ -342,26 +356,34 @@ df_show
 # Colors represent if factor is in the top 3 (green), top 5 (blue), top 10 (yellow)
 
 # %%
-variable = ['pop_s', 'b', 'mut_p', 'mut_s', 'p_sel', 's_sel']
+variable = ["pop_s", "b", "mut_p", "mut_s", "p_sel", "s_sel"]
 f, axs = plt.subplots(1, 6, figsize=(18, 3), sharey=True)
 x_ci = None
 for i in range(len(variable)):
-    sns.regplot(x=variable[i], y='f_min', data=doe, x_estimator=np.mean,
-                x_ci=x_ci, ci=None, truncate=True, ax=axs[i])
+    sns.regplot(
+        x=variable[i],
+        y="f_min",
+        data=doe,
+        x_estimator=np.mean,
+        x_ci=x_ci,
+        ci=None,
+        truncate=True,
+        ax=axs[i],
+    )
 for ax in axs.flat:
     ax.set_ylabel(None)
-axs[0].set_ylabel('min_fitness')
+axs[0].set_ylabel("min_fitness")
 
 # Top 3
-axs[5].set_facecolor('xkcd:pale green')
-axs[4].set_facecolor('xkcd:pale green')
+axs[5].set_facecolor("xkcd:pale green")
+axs[4].set_facecolor("xkcd:pale green")
 
 # Top 5
-axs[0].set_facecolor('xkcd:pale blue')
+axs[0].set_facecolor("xkcd:pale blue")
 
 # Top 10
-axs[1].set_facecolor('xkcd:pale yellow')
-axs[2].set_facecolor('xkcd:pale yellow')
+axs[1].set_facecolor("xkcd:pale yellow")
+axs[2].set_facecolor("xkcd:pale yellow")
 
 plt.tight_layout()
 
@@ -370,7 +392,7 @@ plt.tight_layout()
 
 # %%
 # %%time
-factors = ['pop_s', 'b', 'mut_p', 'mut_s', 'p_sel', 's_sel']
+factors = ["pop_s", "b", "mut_p", "mut_s", "p_sel", "s_sel"]
 f, axs = plt.subplots(6, 6, figsize=(12, 12), sharey=True, sharex=True)
 x_ci = None
 
@@ -382,11 +404,31 @@ for i in range(len(factors)):
         yy = factors[j]
 
         c = next(palette)
-        sns.regplot(x=factors[i], y='f_min', data=doe[doe[yy] == -1], label='-1',
-                    x_estimator=np.mean, color=c, x_ci=x_ci, ci=None, truncate=True, ax=axs[j, i])
+        sns.regplot(
+            x=factors[i],
+            y="f_min",
+            data=doe[doe[yy] == -1],
+            label="-1",
+            x_estimator=np.mean,
+            color=c,
+            x_ci=x_ci,
+            ci=None,
+            truncate=True,
+            ax=axs[j, i],
+        )
         c = next(palette)
-        sns.regplot(x=factors[i], y='f_min', data=doe[doe[yy] == 1], label='1',
-                    x_estimator=np.mean, color=c, x_ci=x_ci, ci=None, truncate=True, ax=axs[j, i])
+        sns.regplot(
+            x=factors[i],
+            y="f_min",
+            data=doe[doe[yy] == 1],
+            label="1",
+            x_estimator=np.mean,
+            color=c,
+            x_ci=x_ci,
+            ci=None,
+            truncate=True,
+            ax=axs[j, i],
+        )
 
         # axs[j,i].legend(title=yy,facecolor='white')
 
@@ -402,26 +444,45 @@ axs[0, 0].set_ylim((0, 20))
 
 
 for i in range(len(factors)):
-    axs[i, 0].set_ylabel('min_fitness')
+    axs[i, 0].set_ylabel("min_fitness")
     axs[-1, i].set_xlabel(factors[i])
-    legend_elements = [mpl.lines.Line2D([0], [0], marker='o', color='w', label=-1, markerfacecolor=next(palette), markersize=10),
-                       mpl.lines.Line2D([0], [0], marker='o', color='w', label=1, markerfacecolor=next(palette), markersize=10)]
-    axs[i, i].legend(handles=legend_elements, loc='center',
-                     title=factors[i], facecolor='white')
+    legend_elements = [
+        mpl.lines.Line2D(
+            [0],
+            [0],
+            marker="o",
+            color="w",
+            label=-1,
+            markerfacecolor=next(palette),
+            markersize=10,
+        ),
+        mpl.lines.Line2D(
+            [0],
+            [0],
+            marker="o",
+            color="w",
+            label=1,
+            markerfacecolor=next(palette),
+            markersize=10,
+        ),
+    ]
+    axs[i, i].legend(
+        handles=legend_elements, loc="center", title=factors[i], facecolor="white"
+    )
 
 # Top 3
-axs[4, 5].set_facecolor('xkcd:pale green')
-axs[5, 4].set_facecolor('xkcd:pale green')
+axs[4, 5].set_facecolor("xkcd:pale green")
+axs[5, 4].set_facecolor("xkcd:pale green")
 
 # Top 5
-axs[0, 5].set_facecolor('xkcd:pale blue')
-axs[5, 0].set_facecolor('xkcd:pale blue')
+axs[0, 5].set_facecolor("xkcd:pale blue")
+axs[5, 0].set_facecolor("xkcd:pale blue")
 
 # Top 10
-axs[0, 4].set_facecolor('xkcd:pale yellow')
-axs[4, 0].set_facecolor('xkcd:pale yellow')
-axs[2, 4].set_facecolor('xkcd:pale yellow')
-axs[4, 2].set_facecolor('xkcd:pale yellow')
+axs[0, 4].set_facecolor("xkcd:pale yellow")
+axs[4, 0].set_facecolor("xkcd:pale yellow")
+axs[2, 4].set_facecolor("xkcd:pale yellow")
+axs[4, 2].set_facecolor("xkcd:pale yellow")
 
 plt.tight_layout()
 plt.show()
@@ -435,7 +496,7 @@ plt.show()
 # %%
 fig, ax = plt.subplots(figsize=(14, 4))
 
-stats.probplot(y1.iloc[0:-3]['Effects_Estimate'], dist="norm", plot=ax)
+stats.probplot(y1.iloc[0:-3]["Effects_Estimate"], dist="norm", plot=ax)
 plt.show()
 
 # %%
