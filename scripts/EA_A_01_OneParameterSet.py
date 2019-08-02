@@ -8,9 +8,9 @@
 #       format_version: '1.2'
 #       jupytext_version: 1.1.6
 #   kernelspec:
-#     display_name: Python [conda env:ea_thesis] *
+#     display_name: Python [conda env:thesis] *
 #     language: python
-#     name: conda-env-ea_thesis-py
+#     name: conda-env-thesis-py
 # ---
 
 # %% [raw]
@@ -40,20 +40,11 @@ from thesis_EAfunc import *
 from thesis_visfunc import *
 
 # %%
-# %matplotlib inline
-
-plt.style.use("default")
 plt.style.use("bmh")
-# plt.rcParams.update({"figure.autolayout": True})
-plt.rcParams["figure.figsize"] = (12, 9)
-mpl.rcParams["figure.dpi"] = 100
-mpl.rcParams["savefig.dpi"] = 100
+# %matplotlib inline
+# %config InlineBackend.figure_format = 'retina'
 
-
-# %%
 pd.set_option("display.latex.repr", True)
-
-# %%
 pd.set_option("display.latex.longtable", True)
 
 # %% [markdown] {"toc-hr-collapsed": false}
@@ -107,133 +98,6 @@ b = -60
 ratio_w = 1.3
 ln = 0.75
 
-
-# %%
-def plot_land(f, domain, point, steps, a=30, b=-60, imgsize=(15, 10), 
-              min_f='None', ratio_w=1.5, ln=1):
-    from mpl_toolkits.mplot3d import Axes3D
-    from matplotlib import cm
-    from matplotlib.ticker import LinearLocator, FormatStrFormatter, MultipleLocator
-    
-    (x_min, x_max, y_min, y_max) = domain
-    (x_plot, y_plot) = point
-
-    # Create arrays
-    # # meshgrid produces all combinations of given x and y
-    x = np.linspace(x_min, x_max, steps)
-    y = np.linspace(y_min, y_max, steps)
-    X, Y = np.meshgrid(x, y)  # combine all x with all y
-    # # Applying the function
-    Z = f(X, Y)
-
-    # Set up the axes
-    imgsize=(6,4.5)
-    fig = plt.figure(figsize=imgsize)
-    ax = fig.gca(projection='3d')
-
-    # Plotting the surface
-    # # Some values for the surface plot
-    norm = plt.Normalize(Z.min(), Z.max())
-    colors = cm.viridis(norm(Z))
-    rcount, ccount, _ = colors.shape
-    ax.view_init(a, b)  # Visualization angles
-    
-    # # Plotting surface
-    surf = ax.plot_surface(X, Y, Z, rcount=rcount,
-                           ccount=ccount, facecolors=colors, shade=False)
-    ax.plot_wireframe(X, Y, Z, rstride=1, cstride=1, linewidth=.15, color="white")
-    
-    # # Plotting points
-    ax.scatter(x_plot, y_plot, f(x_plot, y_plot),
-               color='r', s=30, label='Minima')
-    
-    #surf.set_facecolor((0, 0, 0, 0))
-    if min_f != 'None':
-        ax.set_zlim(bottom=min_f)
-    ax.set_xlabel('gen_x', fontsize="medium")
-    ax.set_ylabel('gen_y', fontsize="medium")
-    ax.set_zlabel('fitness', fontsize="medium")
-    # ax.set_aspect('auto')
-    # ax.autoscale_view(True, True, True, True)
-    ax.legend(facecolor="white", framealpha=0.5, fontsize="x-small")
-       
-    for label in ax.get_xticklabels():
-        label.set_verticalalignment('center')
-        label.set_horizontalalignment('center')
-    for label in ax.get_yticklabels():
-        label.set_verticalalignment('center')
-        label.set_horizontalalignment('center')
-    for label in ax.get_zticklabels():
-        label.set_verticalalignment('center')
-        label.set_horizontalalignment('right')
-    
-    ax.tick_params(axis="x",labelrotation=-45)   
-    ax.tick_params(axis="y",labelrotation=45)
-    
-    plt.show()
-
-plot_land(
-    f, domain, point, 91, a=0, b=-120, imgsize=img_size, ratio_w=ratio_w, ln=ln, min_f=0
-)
-
-plot_land(
-    f, domain, point, 91, a=15, b=-135, imgsize=img_size, ratio_w=ratio_w, ln=ln, min_f=0
-)
-
-domain_min = (-2, 0, -2, 0)
-plot_land(
-    f, domain_min, point, 91, a=15, b=-120, imgsize=img_size, ratio_w=ratio_w, ln=ln, min_f=0
-)
-
-
-# %%
-def plot_land_2d(f, domain, point, steps, a=30, b=-60, imgsize=(15, 10), min_f='None', ratio_w=1.5, ln=1):
-    (x_min, x_max, y_min, y_max) = domain
-    if point != "None":
-        (x_plot, y_plot) = point
-
-    # Create arrays
-    # # meshgrid produces all combinations of given x and y
-    x = np.linspace(x_min, x_max, steps)
-    y = np.linspace(y_min, y_max, steps)
-    X, Y = np.meshgrid(x, y)  # combine all x with all y
-    # # Applying the function
-    Z = f(X, Y)
-
-    # Set up the axes with gridspec
-    fig, ay = plt.subplots(figsize=imgsize)
-    
-    # Plotting level curves
-    # # Plotting points
-    if point != "None":
-        ay.scatter(x_plot, y_plot, color='r', s=20, label='Minima')
-    # # Plotting contour
-    levels = 15
-    CS = ay.contour(X, Y, Z, levels, cmap='viridis', linewidths=ln)
-    ay.clabel(CS, fmt='%2.3f', inline=True, fontsize=8)
-    ay.set_xlabel('gen_x', fontsize="medium")
-    ay.set_ylabel('gen_y', fontsize="medium")
-    # ay.set_aspect('auto')
-    ay.autoscale_view(True, True, True)
-    ay.legend(facecolor="white", framealpha=0.5, fontsize="x-small")
-
-    # adjusting
-    plt.tight_layout()
-    plt.show()
-
-imgsize_single = (6,4.5)
-plot_land_2d(f, domain, point, grph_steps, a=0, b=60, imgsize=imgsize_single, ratio_w=ratio_w, ln=ln, min_f=0)
-
-imgsize_single_min = (4,3)
-domain_min = (-2, 0, -2, 0)
-plot_land_2d(f, domain_min, point, grph_steps, a=0, b=60, imgsize=imgsize_single_min, ratio_w=ratio_w, ln=ln, min_f=0)
-
-domain_min = (-1.1, -.9, -1.1, -.9)
-plot_land_2d(f, domain_min, point, grph_steps, a=0, b=60, imgsize=imgsize_single_min, ratio_w=ratio_w, ln=ln, min_f=0)
-
-domain_min = (-1.01, -.99, -1.01, -.99)
-plot_land_2d(f, domain_min, point, grph_steps, a=0, b=60, imgsize=imgsize_single_min, ratio_w=ratio_w, ln=ln, min_f=0)
-
 # %%
 EA_plt_land(
     f, domain, point, grph_steps, a=a, b=b, imgsize=img_size, ratio_w=ratio_w, ln=ln
@@ -242,7 +106,7 @@ EA_plt_land(
 # %%
 domain_min = (-3, 1, -3, 1)
 EA_plt_land(
-    f, domain_min, point, 91, a=a, b=b, imgsize=img_size, ratio_w=ratio_w, ln=ln
+    f, domain_min, point, 21, a=a, b=b, imgsize=img_size, ratio_w=ratio_w, ln=ln
 )
 
 # %% [markdown] {"toc-hr-collapsed": false}

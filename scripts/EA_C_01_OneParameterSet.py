@@ -43,26 +43,17 @@ import joblib
 import matplotlib as mpl
 import seaborn as sns
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
 
 import pandas as pd
 import statistics as stats
 
 # %%
-# %matplotlib inline
-# #%config InlineBackend.figure_format = "retina"
-
-plt.style.use("default")
 plt.style.use("bmh")
-# plt.rcParams.update({"figure.autolayout": True})
-plt.rcParams["figure.figsize"] = (12, 9)
-mpl.rcParams["figure.dpi"] = 100
-mpl.rcParams["savefig.dpi"] = 100
+plt.rcParams.update({"figure.autolayout": True})
+# %matplotlib inline
+# %config InlineBackend.figure_format = 'retina'
 
-# %%
 pd.set_option("display.latex.repr", True)
-
-# %%
 pd.set_option("display.latex.longtable", True)
 
 # %% [markdown] {"toc-hr-collapsed": false}
@@ -128,43 +119,6 @@ print(f_fun(-6.01717, 9.06022))
 # Testing the function
 print(f_fun(-1.0, -1.0), f_fun(-11.0, -9.0), f_fun(11.0, 3.0), f_fun(-6.0, 9.0))
 
-# %%
-x_min = -6.01717
-y_min = 9.06022
-f_min = (
-        g_fun(x_min + 11.0, y_min + 9.0)
-        + g_fun(x_min - 11.0, y_min - 3.0)
-        + g_fun(x_min + 6.0, y_min - 9.0)
-    )
-f_min
-
-# %%
-plot_x = np.linspace(-50,50,100)
-plot_y = np.sinc(plot_x/np.pi)
-
-fig,ax = plt.subplots(figsize=(6,2))
-plt.plot(plot_x,plot_y)
-
-
-# %%
-def g_fun_mono(z):
-    mag = np.sqrt(z ** 2.0)
-    val = -(50.0 * np.sinc(mag / np.pi) - mag)
-    return val
-
-plot_x = np.linspace(-50,50,100)
-plot_y = g_fun_mono(plot_x)
-
-fix,ax = plt.subplots(figsize=(6,2))
-plt.plot(plot_x,plot_y)
-
-# %%
-plot_x = np.linspace(-60,60,100)
-plot_y = g_fun_mono(plot_x) + g_fun_mono(plot_x-15) + g_fun_mono(plot_x+15)
-
-fix,ax = plt.subplots(figsize=(6,2))
-plt.plot(plot_x,plot_y)
-
 # %% [markdown] {"toc-hr-collapsed": false}
 # # Running the Evolutionary Algorithm
 
@@ -175,7 +129,8 @@ plt.plot(plot_x,plot_y)
 # Algorithm parameters
 # Number of replicates, and generations per experiment
 rep_end = 1
-births_end = 120e3
+gen_end = 5000
+births_end = 250e3
 
 # Genes
 gen_size = 2
@@ -264,7 +219,7 @@ logbook = tools.Logbook()
 rnd.seed(42)
 
 # %%
-# %%timeit
+# %%time
 if __name__ == "__main__":
     for rep_n in range(rep_end):
         rep_seed = rnd.randint(0, 999)
@@ -282,7 +237,7 @@ if __name__ == "__main__":
         while births < births_end:
             # Select Parents and clone them as base for offsprings
             parents = toolbox.par_select(pop, par_size)
-            offspring = [toolbox.clone(ind) for ind in parents]
+            offspring = [toolbox.clone(ind) for ind in pop]
             births = births + len(offspring)
 
             # Aplly crossover
@@ -317,29 +272,9 @@ fitness_res = pd.DataFrame.from_dict(pop_records)
 # #### Fitness development
 
 # %%
-# %%time
-fig, ax = plt.subplots(figsize=(6, 2))
+fig, ax = plt.subplots()
 ax = sns.lineplot(x="births", y="best", data=fitness_res, label="best fitness")
-
-ax.set_axisbelow(True)
-ax.minorticks_on()
-
-ax.set(xscale="log")
-
-ax.set_xlabel("births", fontsize="medium")
-ax.set_ylabel("fitness", fontsize="medium")
-
-ax.set_xlim((2e1, 120e3))
-ax.set_ylim((0, 30))
-
-ax.grid(True, axis="x", which="major", alpha=1, color="w", ls="-")
-ax.yaxis.set_major_locator(ticker.MultipleLocator(10))
-ax.yaxis.set_minor_locator(ticker.MultipleLocator(5))
-ax.grid(True, axis="y", which="major", alpha=0.5, ls="-")
-ax.grid(True, axis="y", which="minor", alpha=0.25, ls="--")
-
-ax.legend(fontsize="small", facecolor="white", framealpha=0.5)
-
+ax.set(xlabel="births", ylabel="fitness", xscale="log")
 ax.plot()
 
 # %% [markdown] {"toc-hr-collapsed": false}
@@ -384,7 +319,7 @@ if __name__ == "__main__":
         while births < births_end:
             # Select Parents and clone them as base for offsprings
             parents = toolbox.par_select(pop, par_size)
-            offspring = [toolbox.clone(ind) for ind in parents]
+            offspring = [toolbox.clone(ind) for ind in pop]
             births = births + len(offspring)
 
             # Aplly crossover
@@ -409,12 +344,10 @@ if __name__ == "__main__":
 pickle_file = "./pickle/C_01.joblib"
 
 # %%
-# %%time
 with open(pickle_file, "wb") as handle:
-    joblib.dump(logbook, handle, compress=("xz", 2))
+    joblib.dump(logbook, handle, compress="xz")
 
 # %%
-# %%time
 with open(pickle_file, "rb") as handle:
     logb = joblib.load(handle)
 
@@ -425,34 +358,28 @@ with open(pickle_file, "rb") as handle:
 # We transform the records into a Data Frame
 
 # %%
-fitness_res = pd.DataFrame.from_dict(logb)
-fitness_res = fitness_res[
-    ["rep", "seed", "births", "avg", "std", "med", "worst", "best"]
-]
+pop_records = [record for record in logb]
+fitness_res = pd.DataFrame.from_dict(pop_records)
 
 # %% [markdown]
 # We filter the values of the last generation
 
 # %%
-query = fitness_res["births"] >= births_end
-fin_fit_120k = fitness_res[query]
-query = fitness_res["births"] == 60021
-fin_fit_60k = fitness_res[query]
-query = fitness_res["births"] == 30021
-fin_fit_30k = fitness_res[query]
-
+last_gen = fitness_res["gen"].max()
+query = fitness_res["gen"] == last_gen
+fin_fit_res = fitness_res[query]
 
 # %% [markdown]
 # Top 10 best (lowest-fitness) individuals
 
 # %%
-fin_fit_120k.sort_values(by=["best"]).head(10)
+fin_fit_res.sort_values(by=["best"]).head(10)
 
 # %% [markdown]
-# Top 10 worst (highest-fitness) individuals
+# Top 10 best (highest-fitness) individuals
 
 # %%
-fin_fit_120k.sort_values(by=["best"], ascending=False).head(10)
+fin_fit_res.sort_values(by=["best"], ascending=False).head(10)
 
 # %% [markdown] {"toc-hr-collapsed": false}
 # ### Visualization
@@ -461,198 +388,65 @@ fin_fit_120k.sort_values(by=["best"], ascending=False).head(10)
 # #### Aggregated results
 
 # %%
-fin_fit_best_120k = fin_fit_120k["best"]
-fin_fit_best_60k = fin_fit_60k["best"]
-fin_fit_best_30k = fin_fit_30k["best"]
-
+fin_fit_best = fin_fit_res["best"]
+fin_fit_stdv = fin_fit_res["std"]
+type(fin_fit_best)
 
 # %%
-# %%time
-fig, axs = plt.subplots(
-    nrows=1,
-    ncols=3,
-    sharey="row",
-    sharex="row",
-    constrained_layout=True,
-    figsize=(12, 2),
+fig, ax = plt.subplots()
+ax = sns.distplot(
+    fin_fit_best,
+    rug=True,
+    kde=False,
+    bins=7,
+    hist_kws={"range": (-0.5, 6.5)},
+    axlabel="fitness",
+    label="best",
 )
-
-bins = np.linspace(-0.01, 6.99, 7 + 1)
-axs[0].hist(fin_fit_best_30k, bins, label="best", alpha=0.5)
-axs[1].hist(fin_fit_best_60k, bins, label="best", alpha=0.5)
-axs[2].hist(fin_fit_best_120k, bins, label="best", alpha=0.5)
-
-axs[0].set_title("(a) at 30k", fontsize="medium")
-axs[1].set_title("(a) at 60k", fontsize="medium")
-axs[2].set_title("(a) at 120k", fontsize="medium")
-
-axs[0].set_ylabel("frequency", fontsize="medium")
-
-for ax in axs.flatten():
-    ax.vlines(bins, 0, 40, colors="xkcd:teal", linestyles=(0, (5, 10)), linewidths=0.75)
-
-    ax.set_ylim((0, 40 + 1))
-    ax.set_xlim((-0.05, 7.05))
-
-    ax.set_xlabel("fitness", fontsize="medium")
-
-    ax.minorticks_on()
-    ax.set_axisbelow(True)
-    ax.yaxis.set_major_locator(ticker.MultipleLocator(10))
-    ax.yaxis.set_minor_locator(ticker.MultipleLocator(5))
-    ax.grid(True, axis="y", which="major", alpha=0.5, ls="-")
-    ax.grid(True, axis="y", which="minor", alpha=0.25, ls="--")
-    ax.xaxis.set_minor_locator(ticker.NullLocator())
-    ax.grid(True, axis="x", which="major", alpha=1, color="w", ls="-")
-
-    ax.legend(fontsize="small", facecolor="white", framealpha=0.5)
+start, end = ax.get_ylim()
+ax.yaxis.set_ticks(np.arange(start, end + 1, 2.0))
+ax.set(ylabel="frequency", ylim=(None, end + 1))
+ax.legend()
+ax.plot()
 
 # %%
-# %%time
-fig, axs = plt.subplots(
-    nrows=1,
-    ncols=3,
-    sharey="row",
-    sharex="row",
-    constrained_layout=True,
-    figsize=(12, 2),
-)
-bins = np.linspace(-1e-8, 1e-6 - 1e-8, num=6)
-axs[0].hist(fin_fit_best_30k, bins, label="best", alpha=0.5)
-axs[1].hist(fin_fit_best_60k, bins, label="best", alpha=0.5)
-axs[2].hist(fin_fit_best_120k, bins, label="best", alpha=0.5)
-
-axs[0].set_title("(a) at 30k", fontsize="medium")
-axs[1].set_title("(a) at 60k", fontsize="medium")
-axs[2].set_title("(a) at 120k", fontsize="medium")
-
-axs[0].set_ylabel("frequency", fontsize="medium")
-
-for ax in axs.flatten():
-    ax.vlines(bins, 0, 10, colors="xkcd:teal", linestyles=(0, (5, 10)), linewidths=0.75)
-
-    ax.set_ylim((0, None))
-
-    ax.set_xlabel("fitness", fontsize="medium")
-
-    ax.minorticks_on()
-    ax.set_axisbelow(True)
-    ax.yaxis.set_major_locator(ticker.MultipleLocator(5))
-    ax.yaxis.set_minor_locator(ticker.MultipleLocator(1))
-    ax.grid(True, axis="y", which="major", alpha=0.5, ls="-")
-    ax.grid(True, axis="y", which="minor", alpha=0.25, ls="--")
-    ax.xaxis.set_minor_locator(ticker.NullLocator())
-    ax.grid(True, axis="x", which="major", alpha=1, color="w", ls="-")
-    ax.ticklabel_format(style="sci", axis="x", scilimits=(0, 0))
-
-    ax.legend(fontsize="small", facecolor="white", framealpha=0.5)
-
-# %%
-# %%time
-fig, ax = plt.subplots(figsize=(6, 2))
-ax = sns.lineplot(x="births", y="best", data=fitness_res, label="best fitness")
-
-ax.set_axisbelow(True)
-ax.minorticks_on()
-
-ax.set(xscale="log")
-
-ax.set_xlabel("births", fontsize="medium")
-ax.set_ylabel("fitness", fontsize="medium")
-
-ax.set_xlim((2e1, 120e3))
-ax.set_ylim((0, 30))
-
-ax.grid(True, axis="x", which="major", alpha=1, color="w", ls="-")
-ax.yaxis.set_major_locator(ticker.MultipleLocator(10))
-ax.yaxis.set_minor_locator(ticker.MultipleLocator(5))
-ax.grid(True, axis="y", which="major", alpha=0.5, ls="-")
-ax.grid(True, axis="y", which="minor", alpha=0.25, ls="--")
-
-ax.legend(fontsize="small", facecolor="white", framealpha=0.5)
+fig, ax = plt.subplots()
+ax = sns.distplot(fin_fit_stdv, rug=True, kde=False, axlabel="fitness", label="std")
+# start, end = ax.get_ylim()
+# ax.yaxis.set_ticks(np.arange(start, end+1, 2.0))
+ax.set(ylabel="frequency")
+ax.legend()
 ax.plot()
 
 # %%
 # %%time
-query = fitness_res["births"] <= 1e3
-fig, ax = plt.subplots(figsize=(6, 2))
-ax = sns.lineplot(x="births", y="best", data=fitness_res[query], label="best fitness")
-
-ax.set_axisbelow(True)
-ax.minorticks_on()
-
-ax.set(xscale="log")
-
-ax.set_xlabel("births", fontsize="medium")
-ax.set_ylabel("fitness", fontsize="medium")
-
-ax.set_xlim((2e1, 1e3))
-ax.set_ylim((0, 30))
-
-ax.grid(True, axis="x", which="major", alpha=1, color="w", ls="-")
-ax.yaxis.set_major_locator(ticker.MultipleLocator(10))
-ax.yaxis.set_minor_locator(ticker.MultipleLocator(5))
-ax.grid(True, axis="y", which="major", alpha=0.5, ls="-")
-ax.grid(True, axis="y", which="minor", alpha=0.25, ls="--")
-
-ax.legend(fontsize="small", facecolor="white", framealpha=0.5)
-
+fig, ax = plt.subplots()
+ax = sns.lineplot(x="gen", y="best", data=fitness_res, label="best fitness")
+ax.set(xlabel="generation", ylabel="fitness")
 ax.plot()
 
 # %%
 # %%time
-query = fitness_res["births"] >= 1e3
-fig, ax = plt.subplots(figsize=(6, 2))
-ax = sns.lineplot(x="births", y="best", data=fitness_res[query], label="best fitness")
-
-ax.set_axisbelow(True)
-ax.minorticks_on()
-
-ax.set(xscale="log")
-
-ax.set_xlabel("births", fontsize="medium")
-ax.set_ylabel("fitness", fontsize="medium")
-
-ax.set_xlim((1e3, 120e3))
-# ax.set_ylim((2.13, 2.18))
-
-ax.grid(True, axis="x", which="major", alpha=1, color="w", ls="-")
-# ax.yaxis.set_major_locator(ticker.MultipleLocator(10))
-# ax.yaxis.set_minor_locator(ticker.MultipleLocator(5))
-ax.grid(True, axis="y", which="major", alpha=0.5, ls="-")
-ax.grid(True, axis="y", which="minor", alpha=0.25, ls="--")
-
-ax.legend(fontsize="small", facecolor="white", framealpha=0.5)
-
-ax.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
-
+query = fitness_res["gen"] <= 200
+fig, ax = plt.subplots()
+ax = sns.lineplot(x="gen", y="best", data=fitness_res[query], label="best fitness")
+ax.set(xlabel="generation", ylabel="fitness")
 ax.plot()
 
 # %%
 # %%time
-query = fitness_res["births"] >= 1e3
-fig, ax = plt.subplots(figsize=(6, 2))
-ax = sns.lineplot(x="births", y="best", data=fitness_res[query], label="best fitness")
+query = (fitness_res["gen"] >= 200) & (fitness_res["gen"] <= 1000)
+fig, ax = plt.subplots()
+ax = sns.lineplot(x="gen", y="best", data=fitness_res[query], label="best fitness")
+ax.set(xlabel="generation", ylabel="fitness")
+ax.plot()
 
-ax.set_axisbelow(True)
-ax.minorticks_on()
-
-ax.set(xscale="log")
-
-ax.set_xlabel("births", fontsize="medium")
-ax.set_ylabel("fitness", fontsize="medium")
-
-ax.set_xlim((1e3, 120e3))
-ax.set_ylim((2.135, 2.17))
-
-ax.grid(True, axis="x", which="major", alpha=1, color="w", ls="-")
-# ax.yaxis.set_major_locator(ticker.MultipleLocator(10))
-# ax.yaxis.set_minor_locator(ticker.MultipleLocator(5))
-ax.grid(True, axis="y", which="major", alpha=0.5, ls="-")
-ax.grid(True, axis="y", which="minor", alpha=0.25, ls="--")
-
-ax.legend(fontsize="small", facecolor="white", framealpha=0.5)
-
+# %%
+# %%time
+query = (fitness_res["gen"] >= 4500) & (fitness_res["gen"] <= 5000)
+fig, ax = plt.subplots()
+ax = sns.lineplot(x="gen", y="best", data=fitness_res[query], label="best fitness")
+ax.set(xlabel="generation", ylabel="fitness")
 ax.plot()
 
 # %%

@@ -8,9 +8,9 @@
 #       format_version: '1.2'
 #       jupytext_version: 1.1.6
 #   kernelspec:
-#     display_name: Python [conda env:ea_thesis] *
+#     display_name: Python [conda env:thesis] *
 #     language: python
-#     name: conda-env-ea_thesis-py
+#     name: conda-env-thesis-py
 # ---
 
 # %% [raw]
